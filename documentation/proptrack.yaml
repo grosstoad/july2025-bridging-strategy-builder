@@ -1,0 +1,620 @@
+openapi: 3.0.1
+info:
+  title: PropTrack API Integration
+  description: API specification for PropTrack property data integration
+  version: 1.0.0
+externalDocs:
+  url: https://developer.proptrack.com.au/docs/apis/
+  description: Official PropTrack API Documentation
+servers:
+  - url: https://data.proptrack.com
+    description: PropTrack API server
+paths:
+  /api/v2/address/suggest:
+    get:
+      summary: Get address suggestions
+      description: Suggests a list of addresses based on a given address string for property autocomplete functionality.
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: Address query string for suggestions.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddressSuggestion"
+              example:
+                - id: "12345"
+                  propertyId: "734983"
+                  address:
+                    fullAddress: "20 Grose Ave, Lurnea, NSW 2170"
+                    unitNumber: null
+                    streetNumber: "20"
+                    streetName: "Grose"
+                    streetType: "Ave"
+                    suburb: "Lurnea"
+                    state: "NSW"
+                    postcode: "2170"
+        400:
+          description: Bad request. Invalid or missing query parameters.
+        
+  /api/v2/properties/{propertyId}/summary:
+    get:
+      summary: Get property summary
+      description: Fetches a summary of the property details for a given property ID.
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: string
+          example: "734983"
+          description: The unique identifier for the property.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertySummary"
+              example:
+                fullAddress: "20 GROSE AVE LURNEA NSW 2170"
+                unitNumber: null
+                streetNumber: "20"
+                streetName: "GROSE"
+                streetType: "AVE"
+                suburb: "LURNEA"
+                postcode: "2170"
+                state: "NSW"
+                attributes:
+                  propertyType: "house"
+                  bedrooms: 3
+                  bathrooms: 1
+                  carSpaces: 1
+                  landArea: 559
+                  livingArea: 459
+                images:
+                  - id: "d300f1a395373a8622bb0fa1b2ec53d42951d5d363defc75d18a479b06d800c4.jpg"
+                    extension: "jpg"
+                    type: "image"
+                    orderIndex: 0
+                    date: "2018-09-27"
+                    sha: "d300f1a395373a8622bb0fa1b2ec53d42951d5d363defc75d18a479b06d800c4"
+                floorplans:
+                  - id: "2b99fa8fbf7dfc488af92b847426ed3225df3bc538574a156dbaddd27dd194cd.gif"
+                    extension: "gif"
+                    type: "floorplan"
+                    orderIndex: 0
+                    date: "2025-05-08"
+                    sha: "2b99fa8fbf7dfc488af92b847426ed3225df3bc538574a156dbaddd27dd194cd"
+                marketStatus:
+                  - "forSale"
+                activeListings:
+                  - priceDescription: "Auction $920,000 Guide"
+                    listingType: "sale"
+                valuationDate: "2025-05-12"
+                estimatedValue: 1020983
+                upperRangeValue: 1180000
+                lowerRangeValue: 860000
+                confidenceLevel: "MEDIUM CONFIDENCE"
+                disclaimer: "Contains property sales information provided under licence from the Valuer General New South Wales. PropTrack Pty Ltd is authorised as a Property Sales Information provider by the Valuer General New South Wales."
+        400:
+          description: Bad request. The property ID is invalid or missing.
+        404:
+          description: Not found. The property ID is not found.
+
+  /api/v2/properties/{propertyId}/listings:
+    get:
+      summary: Get property listings
+      description: Fetches current and historical property listings for a given property ID.
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: string
+          description: The unique identifier for the property.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PropertyListing"
+        400:
+          description: Bad request. The property ID is invalid or missing.
+        404:
+          description: Not found. The property ID is not found.
+
+  /api/v1/properties/{propertyId}/valuations/sale:
+    get:
+      summary: Get property valuation
+      description: Fetches automated property valuation for a given property ID.
+      parameters:
+        - in: path
+          name: propertyId
+          required: true
+          schema:
+            type: string
+          description: The unique identifier for the property.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyValuation"
+        400:
+          description: Bad request. The property ID is invalid or missing.
+        404:
+          description: Not found. The property ID is not found.
+
+  /api/v2/market/sale/historic/median-sale-price:
+    get:
+      summary: Get median sale price data
+      description: Fetches historical median sale price data for market analysis.
+      parameters:
+        - in: query
+          name: suburb
+          schema:
+            type: string
+          description: Suburb name for market data.
+        - in: query
+          name: state
+          schema:
+            type: string
+          description: State code for market data.
+        - in: query
+          name: postcode
+          schema:
+            type: string
+          description: Postcode for market data.
+        - in: query
+          name: propertyTypes
+          schema:
+            type: array
+            items:
+              type: string
+          description: Array of property types to filter by.
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Start date for historical data.
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: End date for historical data.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketData"
+
+  /api/v2/market/sale/historic/median-days-on-market:
+    get:
+      summary: Get median days on market
+      description: Fetches historical median days on market data.
+      parameters:
+        - in: query
+          name: suburb
+          schema:
+            type: string
+          description: Suburb name for market data.
+        - in: query
+          name: state
+          schema:
+            type: string
+          description: State code for market data.
+        - in: query
+          name: postcode
+          schema:
+            type: string
+          description: Postcode for market data.
+        - in: query
+          name: propertyTypes
+          schema:
+            type: array
+            items:
+              type: string
+          description: Array of property types to filter by.
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Start date for historical data.
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: End date for historical data.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketData"
+
+  /api/v2/market/supply-and-demand/potential-buyers:
+    get:
+      summary: Get potential buyers data
+      description: Fetches supply and demand data including potential buyers information.
+      parameters:
+        - in: query
+          name: suburb
+          schema:
+            type: string
+          description: Suburb name for market data.
+        - in: query
+          name: state
+          schema:
+            type: string
+          description: State code for market data.
+        - in: query
+          name: postcode
+          schema:
+            type: string
+          description: Postcode for market data.
+        - in: query
+          name: propertyTypes
+          schema:
+            type: array
+            items:
+              type: string
+          description: Array of property types to filter by.
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupplyDemandData"
+
+components:
+  schemas:
+    AddressSuggestion:
+      type: object
+      description: Address suggestion response object.
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the address suggestion.
+        propertyId:
+          type: string
+          nullable: true
+          description: The unique identifier for the property, if available.
+        address:
+          type: object
+          properties:
+            fullAddress:
+              type: string
+              description: The full address of the property.
+            unitNumber:
+              type: string
+              nullable: true
+              description: The unit number of the property, if applicable.
+            streetNumber:
+              type: string
+              description: The street number of the property.
+            streetName:
+              type: string
+              description: The street name of the property.
+            streetType:
+              type: string
+              description: The street type of the property.
+            suburb:
+              type: string
+              description: The suburb where the property is located.
+            state:
+              type: string
+              description: The state where the property is located.
+            postcode:
+              type: string
+              description: The postcode of the property's location.
+              
+    PropertySummary:
+      type: object
+      description: The response when fetching a property summary.
+      properties:
+        fullAddress:
+          type: string
+          description: The full address of the property.
+        unitNumber:
+          type: string
+          nullable: true
+          description: The unit number of the property, if applicable.
+        streetNumber:
+          type: string
+          description: The street number of the property.
+        streetName:
+          type: string
+          description: The street name of the property.
+        streetType:
+          type: string
+          description: The street type of the property.
+        suburb:
+          type: string
+          description: The suburb where the property is located.
+        postcode:
+          type: string
+          description: The postcode of the property's location.
+        state:
+          type: string
+          description: The state where the property is located.
+        attributes:
+          type: object
+          properties:
+            propertyType:
+              type: string
+              description: Classification of the type of property
+              enum:
+                - house
+                - unit
+                - townhouse
+                - apartment
+            bedrooms:
+              type: integer
+              nullable: true
+              description: Number of bedrooms
+            bathrooms:
+              type: integer
+              nullable: true
+              description: Number of bathrooms
+            carSpaces:
+              type: integer
+              nullable: true
+              description: Number of car spaces
+            landArea:
+              type: integer
+              nullable: true
+              description: Land space area (measured in m2)
+            livingArea:
+              type: integer
+              nullable: true
+              description: Living area (measured in m2)
+        images:
+          type: array
+          description: Property images array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The identifier associated with the image
+              extension:
+                type: string
+                description: File extension type
+                enum: [jpg, gif, png, pcx, svg, webp, ppm, tiff, bmp]
+              type:
+                type: string
+                description: Image type
+                enum: [image, agency_logo, floorplan]
+              orderIndex:
+                type: integer
+                description: The order in which images are displayed on a listing
+              date:
+                type: string
+                format: date
+                description: Date that the image was uploaded
+              sha:
+                type: string
+                description: Secure hashing algorithm
+        floorplans:
+          type: array
+          description: Property floorplans array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The identifier associated with the floorplan
+              extension:
+                type: string
+                description: File extension type
+                enum: [jpg, gif, png, pcx, svg, webp, ppm, tiff, bmp]
+              type:
+                type: string
+                description: Image type
+                enum: [image, agency_logo, floorplan]
+              orderIndex:
+                type: integer
+                description: The order in which images are displayed
+              date:
+                type: string
+                format: date
+                description: Date that the floorplan was uploaded
+              sha:
+                type: string
+                description: Secure hashing algorithm
+        marketStatus:
+          type: array
+          items:
+            type: string
+          description: Market status for the property
+          enum:
+            - offMarket
+            - forSale
+            - forRent
+            - recentlySold
+        activeListings:
+          type: array
+          items:
+            type: object
+            properties:
+              priceDescription:
+                type: string
+                description: Price displayed on the listing
+              listingType:
+                type: string
+                description: The type of listing
+                enum:
+                  - sale
+                  - rent
+        valuationDate:
+          type: string
+          format: date
+          description: Date of the AVM valuation
+        estimatedValue:
+          type: integer
+          description: The estimated value for the property
+        upperRangeValue:
+          type: integer
+          description: The upper range estimate of the AVM
+        lowerRangeValue:
+          type: integer
+          description: The lower range estimate of the AVM
+        confidenceLevel:
+          type: string
+          description: The confidence level of the valuation
+          enum:
+            - HIGH CONFIDENCE
+            - MEDIUM CONFIDENCE
+            - LOW CONFIDENCE
+            - VERY LOW CONFIDENCE
+        disclaimer:
+          type: string
+          description: Required disclaimer text for the valuation
+          
+    PropertyListing:
+      type: object
+      description: Property listing information
+      properties:
+        id:
+          type: string
+          description: Unique listing identifier
+        priceDescription:
+          type: string
+          description: Price displayed on the listing
+        listingType:
+          type: string
+          description: The type of listing
+          enum:
+            - sale
+            - rent
+        listingDate:
+          type: string
+          format: date
+          description: Date the listing was created
+        agency:
+          type: string
+          description: Real estate agency name
+        agent:
+          type: string
+          description: Agent name
+          
+    PropertyValuation:
+      type: object
+      description: Property valuation data
+      properties:
+        valuationDate:
+          type: string
+          format: date
+          description: Date of the valuation
+        estimatedValue:
+          type: integer
+          description: The estimated value for the property
+        upperRangeValue:
+          type: integer
+          description: The upper range estimate
+        lowerRangeValue:
+          type: integer
+          description: The lower range estimate
+        confidenceLevel:
+          type: string
+          description: The confidence level of the valuation
+          enum:
+            - HIGH CONFIDENCE
+            - MEDIUM CONFIDENCE
+            - LOW CONFIDENCE
+            - VERY LOW CONFIDENCE
+        disclaimer:
+          type: string
+          description: Required disclaimer text
+          
+    MarketData:
+      type: object
+      description: Market analysis data
+      properties:
+        suburb:
+          type: string
+          description: Suburb name
+        state:
+          type: string
+          description: State code
+        postcode:
+          type: string
+          description: Postcode
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: Data point date
+              value:
+                type: number
+                description: Market data value
+                
+    SupplyDemandData:
+      type: object
+      description: Supply and demand market data
+      properties:
+        suburb:
+          type: string
+          description: Suburb name
+        state:
+          type: string
+          description: State code
+        postcode:
+          type: string
+          description: Postcode
+        potentialBuyers:
+          type: integer
+          description: Number of potential buyers
+        supplyData:
+          type: object
+          properties:
+            totalListings:
+              type: integer
+              description: Total number of active listings
+            newListings:
+              type: integer
+              description: Number of new listings
+        demandData:
+          type: object
+          properties:
+            inquiries:
+              type: integer
+              description: Number of inquiries
+            inspections:
+              type: integer
+              description: Number of inspections
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth 2.0 Bearer token authentication
+
+security:
+  - bearerAuth: []

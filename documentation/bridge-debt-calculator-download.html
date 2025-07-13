@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge and End Debt Calculator - TypeScript Refactored Version</title>
+    <meta name="description" content="Professional Bridge and End Debt Calculator with TypeScript architecture, separated business logic, and centralized configuration">
+    <meta name="author" content="Bridge Debt Calculator">
+    <meta name="version" content="2.0.0">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Container and Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header Styles */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: #007ACC;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+        
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        /* Section Styles */
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .section:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .section h2 {
+            color: #34495e;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95em;
+        }
+        
+        .input-group input, 
+        .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fff;
+        }
+        
+        .input-group input:focus, 
+        .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .input-group input[type="number"] {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+        
+        /* Output Styles */
+        .output-group {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            transition: background-color 0.3s;
+        }
+        
+        .output-group:hover {
+            background: #e8f4f8;
+        }
+        
+        .output-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 0.9em;
+        }
+        
+        .output-value {
+            font-size: 18px;
+            color: #3498db;
+            font-weight: 500;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+        }
+        
+        /* Button Styles */
+        .calculate-btn {
+            background: #3498db;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .calculate-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(52, 152, 219, 0.4);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Results Section */
+        .results-section {
+            background: #ecf0f1;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Iteration Details */
+        .iteration-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .iteration-details::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .iteration-details::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .iteration-details::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        .iteration-details::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Validation Section */
+        .validation-section {
+            background: #e8f4f8;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .validation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .validation-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .validation-item.valid {
+            border-color: #27ae60;
+            background: #e8f8e8;
+        }
+        
+        .validation-item.invalid {
+            border-color: #e74c3c;
+            background: #ffeee8;
+        }
+        
+        .validation-item label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        
+        .validation-item input {
+            margin-top: 8px;
+        }
+        
+        .small-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+        
+        /* Visualization Section */
+        .visualization {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .flow-box {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .flow-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        
+        .flow-box h4 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .flow-box p {
+            font-size: 1.2em;
+            font-weight: 500;
+            margin: 5px 0;
+        }
+        
+        .flow-arrow {
+            font-size: 30px;
+            color: #7f8c8d;
+            margin: 0 10px;
+        }
+        
+        .key-metric {
+            background: #f39c12;
+        }
+        
+        .final-metric {
+            background: #27ae60;
+        }
+        
+        .warning {
+            background: #e74c3c;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flow-diagram {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .calculate-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 10px;
+            }
+            
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            
+            .calculate-btn {
+                display: none;
+            }
+            
+            .iteration-details {
+                max-height: none;
+            }
+        }
+        
+        /* Accessibility */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Loading State */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bridge and End Debt Calculator <span class="version-badge">TypeScript v2.0</span></h1>
+        
+        <div class="main-grid">
+            <!-- Input Section - Left Column -->
+            <div>
+                <!-- Existing Property -->
+                <div class="section">
+                    <h2>Existing Property</h2>
+                    <div class="input-group">
+                        <label for="existingPropertyValue">Existing property valuation ($)</label>
+                        <input type="number" id="existingPropertyValue" step="1000" value="1000000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="existingDebt">Existing debt ($)</label>
+                        <input type="number" id="existingDebt" step="1000" value="500000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="sellingCostsPercent">Selling costs (%)</label>
+                        <input type="number" id="sellingCostsPercent" step="0.1" value="2.5" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="contractOfSaleProvided">Contract of sale provided?</label>
+                        <select id="contractOfSaleProvided">
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected>No</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="salesProceedsToRetain">Sales proceeds to retain ($)</label>
+                        <input type="number" id="salesProceedsToRetain" step="1000" value="0" min="0">
+                    </div>
+                </div>
+                
+                <!-- Price Guarantee -->
+                <div class="section">
+                    <h2>Price Guarantee</h2>
+                    <div class="input-group">
+                        <label for="pgIncluded">PG included</label>
+                        <select id="pgIncluded">
+                            <option value="No" selected>No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="pgFeeAmount">PG fee ($)</label>
+                        <input type="number" id="pgFeeAmount" step="100" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="pgFeeCapitalised">PG fee capitalised</label>
+                        <select id="pgFeeCapitalised">
+                            <option value="No" selected>No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- New Property -->
+                <div class="section">
+                    <h2>New Property</h2>
+                    <div class="input-group">
+                        <label for="newPropertyValue">New property valuation ($)</label>
+                        <input type="number" id="newPropertyValue" step="1000" value="1200000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="purchaseCostsPercent">Purchase costs (%)</label>
+                        <input type="number" id="purchaseCostsPercent" step="0.1" value="5.5" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="purchaseCostsCapitalised">Purchase costs capitalised</label>
+                        <select id="purchaseCostsCapitalised">
+                            <option value="Yes" selected>Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="additionalBorrowings">Additional borrowings ($)</label>
+                        <input type="number" id="additionalBorrowings" step="1000" value="0" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="savings">Savings ($)</label>
+                        <input type="number" id="savings" step="1000" value="100000" min="0">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Section - Right Column -->
+            <div>
+                <!-- Bridging Product -->
+                <div class="section">
+                    <h2>Bridging Product</h2>
+                    <div class="input-group">
+                        <label for="bridgingTermMonths">Bridging term (months, 1-12)</label>
+                        <input type="number" id="bridgingTermMonths" min="1" max="12" value="6">
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgingRepaymentType">Bridging repayment type</label>
+                        <select id="bridgingRepaymentType">
+                            <option value="Interest Only" selected>Interest Only</option>
+                            <option value="ICAP">ICAP (Interest Capitalisation)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgingInterestRate">Bridging interest rate (%)</label>
+                        <input type="number" id="bridgingInterestRate" step="0.01" value="7.50" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgingFeesNoEndDebtPercent">Bridging fees (no end debt) (%)</label>
+                        <input type="number" id="bridgingFeesNoEndDebtPercent" step="0.01" value="0.75" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgingFeesEndDebtAmount">Bridging fees (end debt) ($)</label>
+                        <input type="number" id="bridgingFeesEndDebtAmount" step="100" value="1500" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgingFeesCapitalised">Bridging fees capitalised</label>
+                        <select id="bridgingFeesCapitalised">
+                            <option value="Yes" selected>Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Assumptions -->
+                <div class="section">
+                    <h2>Assumptions</h2>
+                    <div class="input-group">
+                        <label for="peakDebtMaxLvrWithCos">Peak Debt Max LVR (with COS) (%)</label>
+                        <input type="number" id="peakDebtMaxLvrWithCos" step="0.1" value="85" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="peakDebtMaxLvrWithoutCos">Peak Debt Max LVR (without COS) (%)</label>
+                        <input type="number" id="peakDebtMaxLvrWithoutCos" step="0.1" value="80" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="existingPropertyValuationShading">Existing property valuation shading (%)</label>
+                        <input type="number" id="existingPropertyValuationShading" step="0.1" value="5" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="newPropertyMaxLvr">New property Max LVR (%)</label>
+                        <input type="number" id="newPropertyMaxLvr" step="0.1" value="85" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="bridgeDebtServicingBuffer">Bridge debt servicing buffer (%)</label>
+                        <input type="number" id="bridgeDebtServicingBuffer" step="0.1" value="1.00" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="minimumLoanAmount">Minimum loan amount ($)</label>
+                        <input type="number" id="minimumLoanAmount" step="1000" value="100000" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="maximumLoanAmount">Maximum loan amount ($)</label>
+                        <input type="number" id="maximumLoanAmount" step="1000" value="3000000" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="BridgeDebtCalculator.App.calculate()">Calculate Bridge & End Debt</button>
+        
+        <!-- Results Section -->
+        <div class="results-section" id="results">
+            <h2>Calculation Results</h2>
+            
+            <div class="main-grid">
+                <div>
+                    <h3>Existing Property Calculations</h3>
+                    <div class="output-group">
+                        <label>Selling costs ($)</label>
+                        <div class="output-value" id="sellingCostsAmount_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Existing property equity</label>
+                        <div class="output-value" id="existingPropertyEquity_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Shaded valuation</label>
+                        <div class="output-value" id="shadedValuation_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Shaded net sales proceeds</label>
+                        <div class="output-value" id="shadedNetSalesProceeds_output">-</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>New Property Calculations</h3>
+                    <div class="output-group">
+                        <label>Purchase costs ($)</label>
+                        <div class="output-value" id="purchaseCostsAmount_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Additional funds required</label>
+                        <div class="output-value" id="additionalFundsRequired_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Peak debt (before capitalisation)</label>
+                        <div class="output-value" id="peakDebtBeforeCap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Max peak debt (before capitalisation)</label>
+                        <div class="output-value" id="maxPeakDebtBeforeCap_output">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-grid" style="margin-top: 20px;">
+                <div>
+                    <h3>Loan Requirements</h3>
+                    <div class="output-group">
+                        <label>Bridge debt</label>
+                        <div class="output-value" id="bridgeDebt_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Bridge debt (excluding FCAP)</label>
+                        <div class="output-value" id="bridgeDebtExcludingFcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>FCAP</label>
+                        <div class="output-value" id="fcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Assessed ICAP</label>
+                        <div class="output-value" id="assessedIcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Peak debt (including ICAP)</label>
+                        <div class="output-value" id="peakDebtIncludingIcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Peak shaded valuation</label>
+                        <div class="output-value" id="peakShadedValuation_output">-</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Final Metrics</h3>
+                    <div class="output-group">
+                        <label>End debt</label>
+                        <div class="output-value" id="endDebt_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Shortfall</label>
+                        <div class="output-value" id="shortfall_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Additional cash required</label>
+                        <div class="output-value" id="additionalCashRequired_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Peak debt LVR (excl. ICAP)</label>
+                        <div class="output-value" id="peakDebtLvrExclIcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Peak debt LVR (incl. ICAP)</label>
+                        <div class="output-value" id="peakDebtLvrInclIcap_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>End debt LVR</label>
+                        <div class="output-value" id="endDebtLvr_output">-</div>
+                    </div>
+                    <div class="output-group">
+                        <label>Check (should be 0)</label>
+                        <div class="output-value" id="checkValue_output">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="iteration-details" id="iterationDetails">
+                <h3>Iteration Details</h3>
+                <pre id="iterationLog"></pre>
+            </div>
+        </div>
+        
+        <!-- Visualization Section -->
+        <div class="visualization" id="visualization">
+            <h2>Debt Flow Visualization</h2>
+            <div class="flow-diagram">
+                <div class="flow-box">
+                    <h4>Existing Property</h4>
+                    <p id="viz_existing_value">-</p>
+                    <p class="small-text">Valuation</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box key-metric">
+                    <h4>Bridge Debt</h4>
+                    <p id="viz_bridge_debt">-</p>
+                    <p class="small-text" id="viz_bridge_term">-</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">
+                    <h4>New Property</h4>
+                    <p id="viz_new_value">-</p>
+                    <p class="small-text">Valuation</p>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box final-metric">
+                    <h4>End Debt</h4>
+                    <p id="viz_end_debt">-</p>
+                    <p class="small-text" id="viz_end_lvr">-</p>
+                </div>
+            </div>
+            
+            <div class="flow-diagram">
+                <div class="flow-box" id="shortfall_box" style="display: none;">
+                    <h4>Shortfall</h4>
+                    <p id="viz_shortfall">-</p>
+                </div>
+                <div class="flow-box" id="cash_required_box" style="display: none;">
+                    <h4>Additional Cash Required</h4>
+                    <p id="viz_cash_required">-</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Validation Section -->
+        <div class="validation-section">
+            <h2>Test Case Validation</h2>
+            <p>Enter expected values to validate calculations:</p>
+            
+            <div class="validation-grid">
+                <div class="validation-item">
+                    <label for="expected_sellingCostsAmount">Expected Selling costs ($)</label>
+                    <input type="number" id="expected_sellingCostsAmount" step="0.01">
+                    <div class="small-text" id="validate_sellingCostsAmount"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_existingPropertyEquity">Expected Existing property equity</label>
+                    <input type="number" id="expected_existingPropertyEquity" step="0.01">
+                    <div class="small-text" id="validate_existingPropertyEquity"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_shadedValuation">Expected Shaded valuation</label>
+                    <input type="number" id="expected_shadedValuation" step="0.01">
+                    <div class="small-text" id="validate_shadedValuation"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_shadedNetSalesProceeds">Expected Shaded net sales proceeds</label>
+                    <input type="number" id="expected_shadedNetSalesProceeds" step="0.01">
+                    <div class="small-text" id="validate_shadedNetSalesProceeds"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_purchaseCostsAmount">Expected Purchase costs ($)</label>
+                    <input type="number" id="expected_purchaseCostsAmount" step="0.01">
+                    <div class="small-text" id="validate_purchaseCostsAmount"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_additionalFundsRequired">Expected Additional funds required</label>
+                    <input type="number" id="expected_additionalFundsRequired" step="0.01">
+                    <div class="small-text" id="validate_additionalFundsRequired"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_peakDebtBeforeCap">Expected Peak debt (before cap)</label>
+                    <input type="number" id="expected_peakDebtBeforeCap" step="0.01">
+                    <div class="small-text" id="validate_peakDebtBeforeCap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_maxPeakDebtBeforeCap">Expected Max peak debt</label>
+                    <input type="number" id="expected_maxPeakDebtBeforeCap" step="0.01">
+                    <div class="small-text" id="validate_maxPeakDebtBeforeCap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_bridgeDebt">Expected Bridge debt</label>
+                    <input type="number" id="expected_bridgeDebt" step="0.01">
+                    <div class="small-text" id="validate_bridgeDebt"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_bridgeDebtExcludingFcap">Expected Bridge debt (excl FCAP)</label>
+                    <input type="number" id="expected_bridgeDebtExcludingFcap" step="0.01">
+                    <div class="small-text" id="validate_bridgeDebtExcludingFcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_fcap">Expected FCAP</label>
+                    <input type="number" id="expected_fcap" step="0.01">
+                    <div class="small-text" id="validate_fcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_assessedIcap">Expected Assessed ICAP</label>
+                    <input type="number" id="expected_assessedIcap" step="0.01">
+                    <div class="small-text" id="validate_assessedIcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_peakDebtIncludingIcap">Expected Peak debt (incl ICAP)</label>
+                    <input type="number" id="expected_peakDebtIncludingIcap" step="0.01">
+                    <div class="small-text" id="validate_peakDebtIncludingIcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_peakShadedValuation">Expected Peak shaded valuation</label>
+                    <input type="number" id="expected_peakShadedValuation" step="0.01">
+                    <div class="small-text" id="validate_peakShadedValuation"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_endDebt">Expected End debt</label>
+                    <input type="number" id="expected_endDebt" step="0.01">
+                    <div class="small-text" id="validate_endDebt"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_shortfall">Expected Shortfall</label>
+                    <input type="number" id="expected_shortfall" step="0.01">
+                    <div class="small-text" id="validate_shortfall"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_additionalCashRequired">Expected Additional cash required</label>
+                    <input type="number" id="expected_additionalCashRequired" step="0.01">
+                    <div class="small-text" id="validate_additionalCashRequired"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_peakDebtLvrExclIcap">Expected Peak debt LVR (excl)</label>
+                    <input type="number" id="expected_peakDebtLvrExclIcap" step="0.0001">
+                    <div class="small-text" id="validate_peakDebtLvrExclIcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_peakDebtLvrInclIcap">Expected Peak debt LVR (incl)</label>
+                    <input type="number" id="expected_peakDebtLvrInclIcap" step="0.0001">
+                    <div class="small-text" id="validate_peakDebtLvrInclIcap"></div>
+                </div>
+                <div class="validation-item">
+                    <label for="expected_endDebtLvr">Expected End debt LVR</label>
+                    <input type="number" id="expected_endDebtLvr" step="0.0001">
+                    <div class="small-text" id="validate_endDebtLvr"></div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="BridgeDebtCalculator.App.validateResults()">Validate Results</button>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Bridge and End Debt Calculator v2.0 - TypeScript Refactored Edition</p>
+            <p>Built with clean architecture, separated business logic, and centralized configuration</p>
+            <p>&copy; 2024 Bridge Debt Calculator. All calculations are estimates only.</p>
+        </div>
+    </div>
+    
+    <script>
+        // TypeScript-compiled JavaScript with refactored architecture
+        var BridgeDebtCalculator;
+        (function (BridgeDebtCalculator) {
+            'use strict';
+            
+            // ==================== CONFIGURATION ====================
+            const Config = {
+                solver: {
+                    maxIterations: 100,
+                    convergenceTolerance: 0.01,
+                    infinityProxy: 999999999
+                },
+                defaults: {
+                    peakDebtMaxLvrWithCos: 0.85,
+                    peakDebtMaxLvrWithoutCos: 0.80,
+                    existingPropertyValuationShading: 0.05,
+                    newPropertyMaxLvr: 0.85,
+                    bridgeDebtServicingBuffer: 0.01,
+                    minimumLoanAmount: 100000,
+                    maximumLoanAmount: 3000000,
+                    bridgingFeesEndDebtAmount: 1500,
+                    bridgingFeesNoEndDebtPercent: 0.0075,
+                    bridgingInterestRate: 0.075
+                },
+                validation: {
+                    bridgingTermMin: 1,
+                    bridgingTermMax: 12,
+                    currencyTolerance: 0.01,
+                    percentageTolerance: 0.0001
+                },
+                repaymentTypes: {
+                    interestOnly: "Interest Only",
+                    icap: "ICAP"
+                },
+                booleanValues: {
+                    yes: "Yes",
+                    no: "No"
+                },
+                formatting: {
+                    currency: {
+                        style: 'currency',
+                        currency: 'USD',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    },
+                    percentage: {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                }
+            };
+            
+            // ==================== CALCULATION ENGINE ====================
+            class CalculationEngine {
+                constructor(config = Config) {
+                    this.config = config;
+                    this.iterationLog = '';
+                }
+                
+                calculate(inputs) {
+                    this.iterationLog = '';
+                    
+                    try {
+                        // Step 1: Calculate basic values
+                        const basicCalcs = this.calculateBasicValues(inputs);
+                        
+                        // Step 2: Perform iterative calculation
+                        const iterativeResults = this.performIterativeCalculation(inputs, basicCalcs);
+                        
+                        // Step 3: Calculate final metrics
+                        const finalResults = this.calculateFinalMetrics(inputs, basicCalcs, iterativeResults);
+                        
+                        return {
+                            results: finalResults,
+                            log: this.iterationLog,
+                            success: true
+                        };
+                    } catch (error) {
+                        return {
+                            results: null,
+                            log: this.iterationLog + '\nError: ' + error.message,
+                            success: false,
+                            error: error.message
+                        };
+                    }
+                }
+                
+                calculateBasicValues(inputs) {
+                    const sellingCostsAmount = inputs.sellingCostsPercent * inputs.existingPropertyValue;
+                    const existingPropertyEquity = inputs.existingPropertyValue * inputs.peakDebtMaxLvrWithCos - inputs.existingDebt;
+                    const shadedValuation = inputs.existingPropertyValue * (1 - inputs.existingPropertyValuationShading);
+                    const shadedNetSalesProceeds = inputs.existingPropertyValue * (1 - inputs.existingPropertyValuationShading) - 
+                                                  sellingCostsAmount - inputs.salesProceedsToRetain;
+                    
+                    const purchaseCostsAmount = inputs.purchaseCostsPercent * inputs.newPropertyValue;
+                    const additionalFundsRequired = inputs.newPropertyValue + 
+                                                   (inputs.purchaseCostsCapitalised ? purchaseCostsAmount : 0) + 
+                                                   inputs.additionalBorrowings - inputs.savings + 
+                                                   ((inputs.pgIncluded && inputs.pgFeeCapitalised) ? inputs.pgFeeAmount : 0);
+                    const peakDebtBeforeCap = additionalFundsRequired + inputs.existingDebt;
+                    const peakShadedValuation = inputs.newPropertyValue + shadedValuation;
+                    const maxPeakDebtBeforeCap = Math.min(
+                        peakShadedValuation * (inputs.contractOfSaleProvided ? inputs.peakDebtMaxLvrWithCos : inputs.peakDebtMaxLvrWithoutCos), 
+                        inputs.maximumLoanAmount
+                    );
+                    
+                    return {
+                        sellingCostsAmount,
+                        existingPropertyEquity,
+                        shadedValuation,
+                        shadedNetSalesProceeds,
+                        purchaseCostsAmount,
+                        additionalFundsRequired,
+                        peakDebtBeforeCap,
+                        peakShadedValuation,
+                        maxPeakDebtBeforeCap
+                    };
+                }
+                
+                performIterativeCalculation(inputs, basicCalcs) {
+                    let endDebt = 0;
+                    let iteration = 0;
+                    
+                    this.logIteration(`Starting iterative calculation...`);
+                    this.logIteration(`Initial assumptions:`);
+                    this.logIteration(`- Peak debt (before cap): ${this.formatCurrency(basicCalcs.peakDebtBeforeCap)}`);
+                    this.logIteration(`- Max peak debt: ${this.formatCurrency(basicCalcs.maxPeakDebtBeforeCap)}`);
+                    this.logIteration(`- Shaded net sales proceeds: ${this.formatCurrency(basicCalcs.shadedNetSalesProceeds)}\n`);
+                    
+                    let converged = false;
+                    let bridgeDebt = 0;
+                    let bridgeDebtExcludingFcap = 0;
+                    let fcap = 0;
+                    let assessedIcap = 0;
+                    let peakDebtIncludingIcap = 0;
+                    
+                    while (iteration < this.config.solver.maxIterations && !converged) {
+                        iteration++;
+                        this.logIteration(`\n=== Iteration ${iteration} ===`);
+                        this.logIteration(`Starting endDebt: ${this.formatCurrency(endDebt)}`);
+                        
+                        // Calculate bridge debt
+                        const bridgeDebtCalc = this.calculateBridgeDebt(
+                            inputs,
+                            basicCalcs.peakDebtBeforeCap,
+                            basicCalcs.maxPeakDebtBeforeCap,
+                            basicCalcs.shadedNetSalesProceeds,
+                            endDebt
+                        );
+                        bridgeDebt = bridgeDebtCalc.bridgeDebt;
+                        
+                        // Calculate bridge debt components
+                        const components = this.calculateBridgeDebtComponents(inputs, bridgeDebt, endDebt);
+                        bridgeDebtExcludingFcap = components.bridgeDebtExcludingFcap;
+                        fcap = components.fcap;
+                        assessedIcap = components.assessedIcap;
+                        
+                        this.logIteration(`  bridgeDebt: ${this.formatCurrency(bridgeDebt)}`);
+                        this.logIteration(`  bridgeDebtExcludingFcap: ${this.formatCurrency(bridgeDebtExcludingFcap)}`);
+                        this.logIteration(`  fcap: ${this.formatCurrency(fcap)}`);
+                        this.logIteration(`  assessedIcap: ${this.formatCurrency(assessedIcap)}`);
+                        
+                        // Calculate peak debt including ICAP
+                        peakDebtIncludingIcap = Math.min(
+                            inputs.maximumLoanAmount,
+                            basicCalcs.peakDebtBeforeCap + fcap + assessedIcap,
+                            basicCalcs.maxPeakDebtBeforeCap
+                        );
+                        
+                        this.logIteration(`  peakDebtIncludingIcap: ${this.formatCurrency(peakDebtIncludingIcap)}`);
+                        
+                        // Calculate new end debt
+                        const endDebtCalc = peakDebtIncludingIcap - bridgeDebt - assessedIcap;
+                        let endDebtNew = 0;
+                        
+                        if (endDebtCalc > 0) {
+                            endDebtNew = Math.min(
+                                inputs.newPropertyValue * inputs.newPropertyMaxLvr,
+                                inputs.maximumLoanAmount,
+                                Math.max(endDebtCalc, inputs.minimumLoanAmount)
+                            );
+                        }
+                        
+                        this.logIteration(`  endDebtNew: ${this.formatCurrency(endDebtNew)}`);
+                        
+                        // Check convergence
+                        const checkValue = endDebtNew + bridgeDebtExcludingFcap - basicCalcs.peakDebtBeforeCap + 
+                                          (basicCalcs.peakDebtBeforeCap + fcap + assessedIcap - peakDebtIncludingIcap);
+                        this.logIteration(`  checkValue: ${checkValue.toFixed(6)}`);
+                        
+                        if (Math.abs(endDebtNew - endDebt) < this.config.solver.convergenceTolerance && 
+                            Math.abs(checkValue) < this.config.solver.convergenceTolerance) {
+                            endDebt = endDebtNew;
+                            converged = true;
+                            this.logIteration(`\nConverged after ${iteration} iterations!`);
+                        } else {
+                            endDebt = endDebtNew;
+                        }
+                    }
+                    
+                    if (!converged) {
+                        this.logIteration(`\nWARNING: Did not converge after ${this.config.solver.maxIterations} iterations`);
+                    }
+                    
+                    return {
+                        bridgeDebt,
+                        bridgeDebtExcludingFcap,
+                        fcap,
+                        assessedIcap,
+                        peakDebtIncludingIcap,
+                        endDebt,
+                        iterations: iteration,
+                        converged
+                    };
+                }
+                
+                calculateBridgeDebt(inputs, peakDebtBeforeCap, maxPeakDebtBeforeCap, shadedNetSalesProceeds, endDebt) {
+                    const part1 = Math.min(peakDebtBeforeCap, maxPeakDebtBeforeCap) + 
+                                 (inputs.bridgingFeesCapitalised ? peakDebtBeforeCap * inputs.bridgingFeesNoEndDebtPercent : 0);
+                    const part2 = shadedNetSalesProceeds;
+                    
+                    const condition3 = (Math.min(peakDebtBeforeCap, maxPeakDebtBeforeCap) + 
+                                       (inputs.bridgingFeesCapitalised ? Math.min(peakDebtBeforeCap, maxPeakDebtBeforeCap) * inputs.bridgingFeesNoEndDebtPercent : 0)) > 
+                                       shadedNetSalesProceeds && endDebt > 0 && endDebt <= inputs.minimumLoanAmount;
+                    
+                    const part3 = condition3 
+                        ? Math.min(shadedNetSalesProceeds, peakDebtBeforeCap, maxPeakDebtBeforeCap) + 
+                          (inputs.bridgingFeesCapitalised ? inputs.bridgingFeesEndDebtAmount : 0) - 
+                          inputs.minimumLoanAmount
+                        : this.config.solver.infinityProxy;
+                    
+                    this.logIteration(`bridgeDebt calculation:`);
+                    this.logIteration(`  Part 1: ${this.formatCurrency(part1)}`);
+                    this.logIteration(`  Part 2: ${this.formatCurrency(part2)}`);
+                    this.logIteration(`  Part 3 condition: ${condition3}`);
+                    this.logIteration(`  Part 3 value: ${this.formatCurrency(part3)}`);
+                    
+                    const bridgeDebt = Math.min(part1, part2, part3);
+                    
+                    return { bridgeDebt };
+                }
+                
+                calculateBridgeDebtComponents(inputs, bridgeDebt, endDebt) {
+                    let bridgeDebtExcludingFcap;
+                    let fcap;
+                    
+                    if (endDebt > 0 && inputs.bridgingFeesCapitalised) {
+                        bridgeDebtExcludingFcap = bridgeDebt - inputs.bridgingFeesEndDebtAmount;
+                        fcap = inputs.bridgingFeesEndDebtAmount;
+                    } else if (endDebt === 0 && inputs.bridgingFeesCapitalised) {
+                        bridgeDebtExcludingFcap = bridgeDebt / (1 + inputs.bridgingFeesNoEndDebtPercent);
+                        fcap = bridgeDebt - bridgeDebtExcludingFcap;
+                    } else {
+                        bridgeDebtExcludingFcap = bridgeDebt;
+                        fcap = 0;
+                    }
+                    
+                    const assessedIcap = inputs.bridgingRepaymentType === this.config.repaymentTypes.icap
+                        ? bridgeDebt * Math.pow(1 + (inputs.bridgingInterestRate + inputs.bridgeDebtServicingBuffer) / 12, inputs.bridgingTermMonths) - bridgeDebt
+                        : 0;
+                    
+                    return { bridgeDebtExcludingFcap, fcap, assessedIcap };
+                }
+                
+                calculateFinalMetrics(inputs, basicCalcs, iterativeResults) {
+                    const shortfall = basicCalcs.peakDebtBeforeCap + iterativeResults.fcap + 
+                                     iterativeResults.assessedIcap - iterativeResults.peakDebtIncludingIcap;
+                    
+                    const additionalCashRequired = 
+                        ((inputs.pgIncluded && !inputs.pgFeeCapitalised) ? inputs.pgFeeAmount : 0) +
+                        (!inputs.purchaseCostsCapitalised ? basicCalcs.purchaseCostsAmount : 0) +
+                        ((iterativeResults.endDebt === 0 && !inputs.bridgingFeesCapitalised) ? 
+                            inputs.bridgingFeesNoEndDebtPercent * iterativeResults.bridgeDebt : 0) +
+                        ((iterativeResults.endDebt > 0 && !inputs.bridgingFeesCapitalised) ? 
+                            inputs.bridgingFeesEndDebtAmount : 0);
+                    
+                    const peakDebtLvrExclIcap = (iterativeResults.bridgeDebt + iterativeResults.endDebt) / 
+                                               basicCalcs.peakShadedValuation;
+                    const peakDebtLvrInclIcap = iterativeResults.peakDebtIncludingIcap / 
+                                               basicCalcs.peakShadedValuation;
+                    const endDebtLvr = iterativeResults.endDebt / inputs.newPropertyValue;
+                    const checkValue = iterativeResults.endDebt + iterativeResults.bridgeDebtExcludingFcap - 
+                                      basicCalcs.peakDebtBeforeCap + shortfall;
+                    
+                    return {
+                        ...basicCalcs,
+                        ...iterativeResults,
+                        shortfall,
+                        additionalCashRequired,
+                        peakDebtLvrExclIcap,
+                        peakDebtLvrInclIcap,
+                        endDebtLvr,
+                        checkValue
+                    };
+                }
+                
+                logIteration(message) {
+                    this.iterationLog += message + '\n';
+                }
+                
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('en-US', this.config.formatting.currency).format(value);
+                }
+            }
+            
+            // ==================== UI LAYER ====================
+            class CalculatorUI {
+                constructor(engine, config = Config) {
+                    this.engine = engine;
+                    this.config = config;
+                    this.currentResults = null;
+                }
+                
+                gatherInputs() {
+                    return {
+                        existingPropertyValue: this.getNumberInput('existingPropertyValue'),
+                        existingDebt: this.getNumberInput('existingDebt'),
+                        sellingCostsPercent: this.getNumberInput('sellingCostsPercent') / 100,
+                        contractOfSaleProvided: this.getBooleanFromYesNo(this.getInputValue('contractOfSaleProvided')),
+                        salesProceedsToRetain: this.getNumberInput('salesProceedsToRetain'),
+                        pgIncluded: this.getBooleanFromYesNo(this.getInputValue('pgIncluded')),
+                        pgFeeAmount: this.getNumberInput('pgFeeAmount'),
+                        pgFeeCapitalised: this.getBooleanFromYesNo(this.getInputValue('pgFeeCapitalised')),
+                        newPropertyValue: this.getNumberInput('newPropertyValue'),
+                        purchaseCostsPercent: this.getNumberInput('purchaseCostsPercent') / 100,
+                        purchaseCostsCapitalised: this.getBooleanFromYesNo(this.getInputValue('purchaseCostsCapitalised')),
+                        additionalBorrowings: this.getNumberInput('additionalBorrowings'),
+                        savings: this.getNumberInput('savings'),
+                        bridgingTermMonths: Math.max(this.config.validation.bridgingTermMin, 
+                                                    Math.min(this.config.validation.bridgingTermMax, 
+                                                            Math.round(this.getNumberInput('bridgingTermMonths')))),
+                        bridgingRepaymentType: this.getInputValue('bridgingRepaymentType'),
+                        bridgingInterestRate: this.getNumberInput('bridgingInterestRate') / 100,
+                        bridgingFeesNoEndDebtPercent: this.getNumberInput('bridgingFeesNoEndDebtPercent') / 100,
+                        bridgingFeesEndDebtAmount: this.getNumberInput('bridgingFeesEndDebtAmount'),
+                        bridgingFeesCapitalised: this.getBooleanFromYesNo(this.getInputValue('bridgingFeesCapitalised')),
+                        peakDebtMaxLvrWithCos: this.getNumberInput('peakDebtMaxLvrWithCos') / 100,
+                        peakDebtMaxLvrWithoutCos: this.getNumberInput('peakDebtMaxLvrWithoutCos') / 100,
+                        existingPropertyValuationShading: this.getNumberInput('existingPropertyValuationShading') / 100,
+                        newPropertyMaxLvr: this.getNumberInput('newPropertyMaxLvr') / 100,
+                        bridgeDebtServicingBuffer: this.getNumberInput('bridgeDebtServicingBuffer') / 100,
+                        minimumLoanAmount: this.getNumberInput('minimumLoanAmount'),
+                        maximumLoanAmount: this.getNumberInput('maximumLoanAmount')
+                    };
+                }
+                
+                displayResults(results, log) {
+                    this.currentResults = results;
+                    
+                    document.getElementById('results').style.display = 'block';
+                    
+                    // Update all output fields
+                    const outputs = {
+                        sellingCostsAmount: this.formatCurrency,
+                        existingPropertyEquity: this.formatCurrency,
+                        shadedValuation: this.formatCurrency,
+                        shadedNetSalesProceeds: this.formatCurrency,
+                        purchaseCostsAmount: this.formatCurrency,
+                        additionalFundsRequired: this.formatCurrency,
+                        peakDebtBeforeCap: this.formatCurrency,
+                        maxPeakDebtBeforeCap: this.formatCurrency,
+                        bridgeDebt: this.formatCurrency,
+                        bridgeDebtExcludingFcap: this.formatCurrency,
+                        fcap: this.formatCurrency,
+                        assessedIcap: this.formatCurrency,
+                        peakDebtIncludingIcap: this.formatCurrency,
+                        peakShadedValuation: this.formatCurrency,
+                        endDebt: this.formatCurrency,
+                        shortfall: this.formatCurrency,
+                        additionalCashRequired: this.formatCurrency,
+                        peakDebtLvrExclIcap: this.formatPercent,
+                        peakDebtLvrInclIcap: this.formatPercent,
+                        endDebtLvr: this.formatPercent
+                    };
+                    
+                    for (const [field, formatter] of Object.entries(outputs)) {
+                        const elem = document.getElementById(`${field}_output`);
+                        if (elem && field in results) {
+                            elem.textContent = formatter.call(this, results[field]);
+                        }
+                    }
+                    
+                    // Special handling for checkValue
+                    const checkElem = document.getElementById('checkValue_output');
+                    if (checkElem) {
+                        checkElem.textContent = results.checkValue.toFixed(2);
+                    }
+                    
+                    // Display iteration log
+                    const logElem = document.getElementById('iterationLog');
+                    if (logElem) {
+                        logElem.textContent = log;
+                    }
+                    
+                    this.displayVisualization(results);
+                }
+                
+                displayVisualization(results) {
+                    document.getElementById('visualization').style.display = 'block';
+                    
+                    // Update visualization elements
+                    const vizElements = {
+                        'viz_existing_value': this.formatCurrency(this.getNumberInput('existingPropertyValue')),
+                        'viz_bridge_debt': this.formatCurrency(results.bridgeDebt),
+                        'viz_bridge_term': this.getNumberInput('bridgingTermMonths') + ' months',
+                        'viz_new_value': this.formatCurrency(this.getNumberInput('newPropertyValue')),
+                        'viz_end_debt': this.formatCurrency(results.endDebt),
+                        'viz_end_lvr': 'LVR: ' + this.formatPercent(results.endDebtLvr)
+                    };
+                    
+                    for (const [id, value] of Object.entries(vizElements)) {
+                        const elem = document.getElementById(id);
+                        if (elem) elem.textContent = value;
+                    }
+                    
+                    // Handle conditional elements
+                    const shortfallBox = document.getElementById('shortfall_box');
+                    const cashRequiredBox = document.getElementById('cash_required_box');
+                    
+                    if (shortfallBox) {
+                        if (results.shortfall > 0) {
+                            shortfallBox.style.display = 'block';
+                            shortfallBox.className = 'flow-box warning';
+                            const shortfallElem = document.getElementById('viz_shortfall');
+                            if (shortfallElem) shortfallElem.textContent = this.formatCurrency(results.shortfall);
+                        } else {
+                            shortfallBox.style.display = 'none';
+                        }
+                    }
+                    
+                    if (cashRequiredBox) {
+                        if (results.additionalCashRequired > 0) {
+                            cashRequiredBox.style.display = 'block';
+                            cashRequiredBox.className = 'flow-box warning';
+                            const cashElem = document.getElementById('viz_cash_required');
+                            if (cashElem) cashElem.textContent = this.formatCurrency(results.additionalCashRequired);
+                        } else {
+                            cashRequiredBox.style.display = 'none';
+                        }
+                    }
+                }
+                
+                validateResults() {
+                    if (!this.currentResults) {
+                        alert('Please calculate results first');
+                        return;
+                    }
+                    
+                    const fields = [
+                        'sellingCostsAmount', 'existingPropertyEquity', 'shadedValuation', 'shadedNetSalesProceeds',
+                        'purchaseCostsAmount', 'additionalFundsRequired', 'peakDebtBeforeCap', 'maxPeakDebtBeforeCap',
+                        'bridgeDebt', 'bridgeDebtExcludingFcap', 'fcap', 'assessedIcap', 'peakDebtIncludingIcap',
+                        'peakShadedValuation', 'endDebt', 'shortfall', 'additionalCashRequired',
+                        'peakDebtLvrExclIcap', 'peakDebtLvrInclIcap', 'endDebtLvr'
+                    ];
+                    
+                    fields.forEach(field => {
+                        const expectedInput = document.getElementById(`expected_${field}`);
+                        const validateDiv = document.getElementById(`validate_${field}`);
+                        const validationItem = expectedInput?.closest('.validation-item');
+                        
+                        if (expectedInput && validateDiv && validationItem && expectedInput instanceof HTMLInputElement) {
+                            const expectedValue = expectedInput.value;
+                            if (expectedValue) {
+                                const expected = parseFloat(expectedValue);
+                                const actual = this.currentResults[field];
+                                
+                                let isValid;
+                                let actualStr, expectedStr;
+                                
+                                if (['peakDebtLvrExclIcap', 'peakDebtLvrInclIcap', 'endDebtLvr'].includes(field)) {
+                                    const expectedDecimal = expected > 1 ? expected / 100 : expected;
+                                    isValid = Math.abs(actual - expectedDecimal) < this.config.validation.percentageTolerance;
+                                    actualStr = this.formatPercent(actual);
+                                    expectedStr = this.formatPercent(expectedDecimal);
+                                } else {
+                                    isValid = Math.abs(actual - expected) < this.config.validation.currencyTolerance;
+                                    actualStr = this.formatCurrency(actual);
+                                    expectedStr = this.formatCurrency(expected);
+                                }
+                                
+                                validateDiv.textContent = `Actual: ${actualStr} vs Expected: ${expectedStr}`;
+                                
+                                if (isValid) {
+                                    validationItem.classList.add('valid');
+                                    validationItem.classList.remove('invalid');
+                                    validateDiv.textContent += ' ✓';
+                                } else {
+                                    validationItem.classList.add('invalid');
+                                    validationItem.classList.remove('valid');
+                                    validateDiv.textContent += ' ✗';
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                showError(message) {
+                    alert('Error: ' + message);
+                }
+                
+                showLoading(show) {
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        if (show) {
+                            container.classList.add('loading');
+                        } else {
+                            container.classList.remove('loading');
+                        }
+                    }
+                }
+                
+                // Helper methods
+                getInputValue(id) {
+                    const elem = document.getElementById(id);
+                    if (!elem) {
+                        console.warn(`Element ${id} not found`);
+                        return '';
+                    }
+                    
+                    if (elem instanceof HTMLInputElement || elem instanceof HTMLSelectElement) {
+                        return elem.value;
+                    }
+                    return '';
+                }
+                
+                getNumberInput(id) {
+                    const value = this.getInputValue(id);
+                    const num = parseFloat(value);
+                    return isNaN(num) ? 0 : num;
+                }
+                
+                getBooleanFromYesNo(value) {
+                    return value === this.config.booleanValues.yes;
+                }
+                
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('en-US', this.config.formatting.currency).format(value);
+                }
+                
+                formatPercent(value) {
+                    return (value * 100).toFixed(this.config.formatting.percentage.minimumFractionDigits) + '%';
+                }
+            }
+            
+            // ==================== APPLICATION CONTROLLER ====================
+            class Application {
+                constructor() {
+                    this.engine = new CalculationEngine(Config);
+                    this.ui = new CalculatorUI(this.engine, Config);
+                    this.initializeEventListeners();
+                }
+                
+                calculate() {
+                    try {
+                        this.ui.showLoading(true);
+                        
+                        // Gather inputs from UI
+                        const inputs = this.ui.gatherInputs();
+                        
+                        // Validate inputs
+                        const validationError = this.validateInputs(inputs);
+                        if (validationError) {
+                            this.ui.showError(validationError);
+                            return;
+                        }
+                        
+                        // Perform calculation using engine
+                        const { results, log, success, error } = this.engine.calculate(inputs);
+                        
+                        if (!success) {
+                            this.ui.showError(error || 'Calculation failed');
+                            return;
+                        }
+                        
+                        // Display results in UI
+                        this.ui.displayResults(results, log);
+                    } catch (error) {
+                        console.error('Calculation error:', error);
+                        this.ui.showError('An unexpected error occurred during calculation');
+                    } finally {
+                        this.ui.showLoading(false);
+                    }
+                }
+                
+                validateResults() {
+                    this.ui.validateResults();
+                }
+                
+                validateInputs(inputs) {
+                    // Basic validation
+                    if (inputs.existingPropertyValue <= 0) {
+                        return 'Existing property value must be greater than 0';
+                    }
+                    if (inputs.newPropertyValue <= 0) {
+                        return 'New property value must be greater than 0';
+                    }
+                    if (inputs.existingDebt < 0) {
+                        return 'Existing debt cannot be negative';
+                    }
+                    if (inputs.existingDebt > inputs.existingPropertyValue) {
+                        return 'Existing debt cannot exceed property value';
+                    }
+                    if (inputs.minimumLoanAmount > inputs.maximumLoanAmount) {
+                        return 'Minimum loan amount cannot exceed maximum loan amount';
+                    }
+                    
+                    return null; // No errors
+                }
+                
+                initializeEventListeners() {
+                    // Initialize validation input listeners
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const validationInputs = document.querySelectorAll('[id^="expected_"]');
+                        validationInputs.forEach(input => {
+                            input.addEventListener('input', () => {
+                                if (this.ui.currentResults) {
+                                    this.ui.validateResults();
+                                }
+                            });
+                        });
+                        
+                        // Add Enter key support for inputs
+                        const allInputs = document.querySelectorAll('input, select');
+                        allInputs.forEach(input => {
+                            input.addEventListener('keypress', (e) => {
+                                if (e.key === 'Enter') {
+                                    this.calculate();
+                                }
+                            });
+                        });
+                    });
+                }
+                
+                // Public methods for testing
+                getEngine() {
+                    return this.engine;
+                }
+                
+                getUI() {
+                    return this.ui;
+                }
+                
+                getConfig() {
+                    return Config;
+                }
+            }
+            
+            // ==================== PUBLIC API ====================
+            BridgeDebtCalculator.Config = Config;
+            BridgeDebtCalculator.CalculationEngine = CalculationEngine;
+            BridgeDebtCalculator.CalculatorUI = CalculatorUI;
+            BridgeDebtCalculator.Application = Application;
+            BridgeDebtCalculator.App = new Application();
+            
+            // Export for testing
+            BridgeDebtCalculator.VERSION = '2.0.0';
+            BridgeDebtCalculator.ARCHITECTURE = 'TypeScript Refactored with Clean Architecture';
+            
+        })(BridgeDebtCalculator || (BridgeDebtCalculator = {}));
+        
+        // Log initialization
+        console.log('Bridge & End Debt Calculator v2.0 initialized');
+        console.log('Architecture:', BridgeDebtCalculator.ARCHITECTURE);
+        console.log('Engine:', BridgeDebtCalculator.App.getEngine());
+        console.log('Configuration:', BridgeDebtCalculator.App.getConfig());
+    </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+import { useState, useCallback, useRef } from 'react';
+import { PropTrackService } from '../services/proptrack';
+import { AddressSuggestion } from '../types/proptrack';
+
+export interface SuburbSuggestion {
+  name: string;
+  state: string;
+  postcode: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+interface PropertySearchData {
+  propertyId?: number;
+  fullAddress: string;
+  suburb?: string;
+  state?: string;
+  postcode?: string;
+}
+
+export interface EnhancedSearchResult {
+  type: 'property' | 'suburb';
+  data: PropertySearchData | SuburbSuggestion;
+  displayText: string;
+  secondaryText?: string;
+}
+
+interface UseEnhancedAddressSearchReturn {
+  results: EnhancedSearchResult[];
+  isLoading: boolean;
+  error: string | null;
+  searchAddresses: (query: string) => Promise<void>;
+  clearResults: () => void;
+}
+
+export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
+  const [results, setResults] = useState<EnhancedSearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const searchAddresses = useCallback(async (query: string) => {
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Trim whitespace and check minimum length
+    const trimmedQuery = query.trim();
+    if (trimmedQuery.length < 3) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    // Create new AbortController for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      const [propertyResults, suburbResults] = await Promise.allSettled([
+        searchPropertyAddresses(trimmedQuery, abortController.signal),
+        searchSuburbs(trimmedQuery, abortController.signal)
+      ]);
+
+      // Check if request was aborted
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      const combinedResults: EnhancedSearchResult[] = [];
+
+      // Add property results
+      if (propertyResults.status === 'fulfilled' && propertyResults.value) {
+        const propertyMappedResults = propertyResults.value.map((suggestion: AddressSuggestion) => ({
+          type: 'property' as const,
+          data: {
+            propertyId: suggestion.propertyId ? parseInt(suggestion.propertyId) : undefined,
+            fullAddress: suggestion.address.fullAddress,
+            suburb: suggestion.address.suburb,
+            state: suggestion.address.state,
+            postcode: suggestion.address.postcode
+          },
+          displayText: suggestion.address.fullAddress,
+          secondaryText: 'Property'
+        }));
+        combinedResults.push(...propertyMappedResults);
+      }
+
+      // Add suburb results
+      if (suburbResults.status === 'fulfilled' && suburbResults.value) {
+        const suburbMappedResults = suburbResults.value.map((suburb: SuburbSuggestion) => ({
+          type: 'suburb' as const,
+          data: suburb,
+          displayText: `${suburb.name}, ${suburb.state} ${suburb.postcode}`,
+          secondaryText: 'Suburb'
+        }));
+        combinedResults.push(...suburbMappedResults);
+      }
+
+      // Sort results: suburbs first, then properties
+      combinedResults.sort((a, b) => {
+        if (a.type === 'suburb' && b.type === 'property') return -1;
+        if (a.type === 'property' && b.type === 'suburb') return 1;
+        return 0;
+      });
+
+      setResults(combinedResults);
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Request was cancelled, ignore
+        return;
+      }
+      
+      console.error('Enhanced address search error:', err);
+      setError('Failed to search addresses. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const clearResults = useCallback(() => {
+    setResults([]);
+    setError(null);
+    setIsLoading(false);
+  }, []);
+
+  return {
+    results,
+    isLoading,
+    error,
+    searchAddresses,
+    clearResults
+  };
+};
+
+// Helper function to search property addresses using PropTrack API
+async function searchPropertyAddresses(query: string, signal: AbortSignal): Promise<AddressSuggestion[]> {
+  try {
+    // Use the PropTrackService which handles response formatting
+    const response = await PropTrackService.getAddressSuggestions(query);
+    return response.results || [];
+  } catch (error) {
+    // Check if it was an abort error
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw error; // Re-throw abort errors to handle them properly
+    }
+    console.warn('PropTrack address search failed:', error);
+    return [];
+  }
+}
+
+// Helper function to search suburbs using Australia Post API
+async function searchSuburbs(query: string, signal: AbortSignal): Promise<SuburbSuggestion[]> {
+  try {
+    const response = await fetch(`/api/auspost/search?q=${encodeURIComponent(query)}`, {
+      signal,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Australia Post API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Transform Australia Post response to our format
+    if (data.localities && Array.isArray(data.localities)) {
+      // New format from shipping API
+      return data.localities.map((locality: any) => ({
+        name: locality.name,
+        state: locality.state || 'VIC', // Default if not provided
+        postcode: locality.postcode || '',
+        latitude: locality.latitude,
+        longitude: locality.longitude
+      }));
+    } else if (data.localities?.locality) {
+      // Legacy format support
+      const localities = Array.isArray(data.localities.locality) 
+        ? data.localities.locality 
+        : [data.localities.locality];
+        
+      return localities.map((locality: any) => ({
+        name: locality.name || query.toUpperCase(),
+        state: locality.state,
+        postcode: locality.postcode,
+        latitude: locality.latitude,
+        longitude: locality.longitude
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.warn('Australia Post suburb search failed:', error);
+    return [];
+  }
+}
