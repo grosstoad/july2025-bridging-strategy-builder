@@ -194,9 +194,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('Environment check - PropTrack auth:', !!PROPTRACK_AUTH_HEADER);
   console.log('Environment check - AusPost key:', !!AUSPOST_API_KEY);
 
-  // Extract the path from the catch-all parameter
-  const { all } = req.query;
-  const fullPath = Array.isArray(all) ? all.join('/') : all || '';
+  // Extract the path from the URL or catch-all parameter
+  let fullPath = '';
+  
+  // First try to get path from the URL itself (for direct API routes)
+  if (req.url) {
+    const urlPath = req.url.split('?')[0]; // Remove query string
+    const apiIndex = urlPath.indexOf('/api/');
+    if (apiIndex !== -1) {
+      fullPath = urlPath.substring(apiIndex + 5); // Remove '/api/' prefix
+    }
+  }
+  
+  // If no path from URL, fall back to catch-all parameter
+  if (!fullPath) {
+    const { all } = req.query;
+    fullPath = Array.isArray(all) ? all.join('/') : all || '';
+  }
+  
+  console.log('Extracted path:', fullPath);
 
   // Route to appropriate handler
   if (fullPath === 'health') {
@@ -206,6 +222,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       env: process.env.NODE_ENV || 'production',
       propTrackConfigured: !!PROPTRACK_AUTH_HEADER,
       ausPostConfigured: !!AUSPOST_API_KEY,
+    });
+  } else if (fullPath === 'debug') {
+    // Debug endpoint to understand request structure
+    res.status(200).json({
+      url: req.url,
+      query: req.query,
+      headers: req.headers,
+      method: req.method,
+      extractedPath: fullPath,
     });
   } else if (fullPath.startsWith('auspost/search')) {
     await handleAusPostRequest(req, res);
