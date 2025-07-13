@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import proptrackProxy from './proptrack-proxy.js';
+import proptrackProxy from '../../api/proptrack-proxy.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });

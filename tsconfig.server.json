@@ -13,7 +13,8 @@
     "noEmit": false
   },
   "include": [
-    "src/server/**/*"
+    "src/server/**/*",
+    "api/**/*"
   ],
   "exclude": [
     "node_modules",
