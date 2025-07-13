@@ -22,19 +22,42 @@ async function getAccessToken(): Promise<string> {
 
   try {
     console.log('Requesting new PropTrack access token...');
+    console.log('Token endpoint:', `${PROPTRACK_BASE_URL}/oauth2/token`);
     
+    // Add comprehensive headers to avoid being blocked by Akamai
     const response = await fetch(`${PROPTRACK_BASE_URL}/oauth2/token`, {
       method: 'POST',
       headers: {
         'Authorization': PROPTRACK_AUTH_HEADER,
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'User-Agent': 'BridgingStrategyBuilder/1.0 (Vercel Functions; +https://bridging-strategy-builder.vercel.app)',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Connection': 'keep-alive',
+        // Add origin to help with Akamai
+        'Origin': 'https://bridging-strategy-builder.vercel.app',
+        'Referer': 'https://bridging-strategy-builder.vercel.app/',
       },
       body: 'grant_type=client_credentials',
     });
 
+    // Log response details for debugging
+    console.log('Token response status:', response.status);
+    console.log('Token response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Token request failed:', response.status, errorText);
+      
+      // Check if it's an Akamai block
+      if (errorText.includes('Access Denied') || errorText.includes('Reference #')) {
+        console.error('Detected Akamai/EdgeSuite block. This suggests IP-based blocking.');
+        throw new Error(`Akamai block detected: ${response.status}. The PropTrack API is blocking requests from Vercel's IP addresses.`);
+      }
+      
       throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
     }
 
@@ -51,6 +74,14 @@ async function getAccessToken(): Promise<string> {
     return accessToken;
   } catch (error) {
     console.error('Failed to get PropTrack access token:', error);
+    
+    // Add more detailed error logging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    
     throw error;
   }
 }
@@ -78,6 +109,9 @@ async function handlePropTrackRequest(path: string, req: VercelRequest, res: Ver
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'User-Agent': 'BridgingStrategyBuilder/1.0 (Vercel Functions; +https://bridging-strategy-builder.vercel.app)',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
       },
       body: req.method === 'POST' ? JSON.stringify(req.body) : undefined,
     });
@@ -96,9 +130,19 @@ async function handlePropTrackRequest(path: string, req: VercelRequest, res: Ver
     res.status(200).json(responseData);
   } catch (error) {
     console.error('PropTrack proxy error:', error);
+    
+    // Provide more detailed error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isAkamaiBlock = errorMessage.includes('Akamai block detected');
+    
     res.status(500).json({
       error: 'Internal server error',
-      message: error instanceof Error ? error.message : 'Unknown error',
+      message: errorMessage,
+      details: isAkamaiBlock ? {
+        issue: 'The PropTrack API is blocking requests from Vercel serverless functions.',
+        recommendation: 'Consider using a proxy service with static IP addresses or deploying to a different hosting provider.',
+        alternatives: ['QuotaGuard', 'Fixie', 'IPburger', 'Self-hosted proxy on a VPS']
+      } : undefined
     });
   }
 }
@@ -123,6 +167,7 @@ async function handleAusPostRequest(req: VercelRequest, res: VercelResponse) {
       headers: {
         'AUTH-KEY': AUSPOST_API_KEY,
         'Accept': 'application/json',
+        'User-Agent': 'BridgingStrategyBuilder/1.0 (Vercel Functions; +https://bridging-strategy-builder.vercel.app)',
       },
     });
 
@@ -193,6 +238,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('Query params:', req.query);
   console.log('Environment check - PropTrack auth:', !!PROPTRACK_AUTH_HEADER);
   console.log('Environment check - AusPost key:', !!AUSPOST_API_KEY);
+  console.log('Request origin:', req.headers.origin);
+  console.log('Request host:', req.headers.host);
 
   // Extract the path from the URL or catch-all parameter
   let fullPath = '';
