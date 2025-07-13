@@ -44,6 +44,11 @@ async function getAccessToken(): Promise<string> {
     tokenExpiry = new Date(Date.now() + (tokenData.expires_in * 1000) - 30000); // 30 second buffer
 
     console.log('PropTrack token refreshed successfully');
+    
+    if (!accessToken) {
+      throw new Error('Failed to obtain access token');
+    }
+    
     return accessToken;
   } catch (error) {
     console.error('Failed to get PropTrack access token:', error);
@@ -130,11 +135,11 @@ async function ausPostApiProxy(req: express.Request, res: express.Response) {
       throw new Error(`Australia Post API failed: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     console.log('AusPost API response:', JSON.stringify(data, null, 2));
     
     // Transform the response to match our expected format
-    if (data.localities?.locality) {
+    if (data?.localities?.locality) {
       const localities = Array.isArray(data.localities.locality) 
         ? data.localities.locality 
         : [data.localities.locality];
