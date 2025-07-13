@@ -1,4 +1,4 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Environment variables
 const PROPTRACK_BASE_URL = 'https://data.proptrack.com';
