@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import propTrackRouter from './proptrack-proxy';
+import propTrackRouter from './proptrack-proxy.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
