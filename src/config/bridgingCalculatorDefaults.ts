@@ -69,7 +69,7 @@ export function getDefaultBridgingInputs() {
     purchaseCostsCapitalised: true,
     
     bridgingTermMonths: 6, // Default to 6 months
-    bridgingRepaymentType: BRIDGING_CALCULATOR_CONFIG.repaymentTypes.interestOnly as 'Interest Only',
+    bridgingRepaymentType: BRIDGING_CALCULATOR_CONFIG.repaymentTypes.icap as 'ICAP',
     bridgingInterestRate: BRIDGING_CALCULATOR_CONFIG.defaults.bridgingInterestRate,
     bridgingFeesNoEndDebtPercent: BRIDGING_CALCULATOR_CONFIG.defaults.bridgingFeesNoEndDebtPercent,
     bridgingFeesEndDebtAmount: BRIDGING_CALCULATOR_CONFIG.defaults.bridgingFeesEndDebtAmount,
