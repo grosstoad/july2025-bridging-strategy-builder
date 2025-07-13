@@ -26,11 +26,11 @@ app.use(cors({
 
 app.use(express.json());
 
-// Mount PropTrack routes
-app.use('/api', propTrackRouter);
+// Mount PropTrack routes at root (Vercel strips /api prefix)
+app.use('/', propTrackRouter);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ 
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -39,7 +39,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server error:', err);
   res.status(500).json({ 
     error: 'Internal server error',
