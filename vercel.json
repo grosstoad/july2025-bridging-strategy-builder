@@ -1,13 +1,11 @@
 {
-  "functions": {
-    "src/server/index.ts": {
-      "runtime": "@vercel/node"
-    }
-  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/src/server/index.ts"
+      "destination": "/api/serverless"
     }
   ]
 }
