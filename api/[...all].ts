@@ -64,7 +64,7 @@ async function handlePropTrackRequest(path: string, req: VercelRequest, res: Ver
     const url = new URL(`${PROPTRACK_BASE_URL}/api/${path}`);
     if (req.query) {
       Object.entries(req.query).forEach(([key, value]) => {
-        if (key !== 'path' && value) {
+        if (key !== 'all' && value) {
           url.searchParams.append(key, String(value));
         }
       });
@@ -195,8 +195,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('Environment check - AusPost key:', !!AUSPOST_API_KEY);
 
   // Extract the path from the catch-all parameter
-  const { path } = req.query;
-  const fullPath = Array.isArray(path) ? path.join('/') : path || '';
+  const { all } = req.query;
+  const fullPath = Array.isArray(all) ? all.join('/') : all || '';
 
   // Route to appropriate handler
   if (fullPath === 'health') {
