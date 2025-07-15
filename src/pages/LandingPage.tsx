@@ -53,24 +53,9 @@ export const LandingPage: React.FC = () => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#fafafa'
+        backgroundColor: '#ffffff'
       }}
     >
-      {/* Navigation Placeholder */}
-      <Box 
-        sx={{ 
-          height: 64,
-          backgroundColor: '#e5e5e5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          NAV PLACEHOLDER
-        </Typography>
-      </Box>
-
       {/* Main Content */}
       <Container 
         maxWidth="md" 
@@ -79,61 +64,73 @@ export const LandingPage: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          py: 8
+          py: { xs: 8, md: 16 }
         }}
       >
-        <Stack spacing={6} alignItems="center" textAlign="center">
-          {/* Hero Section */}
-          <Stack spacing={3} alignItems="center" maxWidth="800px">
+        <Stack spacing={8} alignItems="center" textAlign="center">
+          {/* Hero Section with title, subtitle and powered by */}
+          <Stack spacing={3} alignItems="center">
             <Typography 
               variant="h1" 
               component="h1"
               sx={{ 
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                fontSize: '64px',
                 fontWeight: 700,
-                color: '#333',
-                lineHeight: 1.2
+                color: 'rgba(0, 0, 0, 0.87)',
+                lineHeight: '72px',
+                letterSpacing: '-2px',
+                fontFamily: 'Inter, sans-serif'
               }}
             >
-              Work out your next move
+              HomeSwitch
             </Typography>
             
             <Typography 
               variant="h6" 
               component="p"
               sx={{ 
-                fontSize: { xs: '1rem', sm: '1.125rem' },
-                fontWeight: 400,
-                color: '#666',
-                lineHeight: 1.5,
-                maxWidth: '600px'
+                fontSize: '24px',
+                fontWeight: 500,
+                color: 'rgba(0, 0, 0, 0.6)',
+                lineHeight: '32px',
+                letterSpacing: '-0.5px',
+                maxWidth: '614px',
+                fontFamily: 'Inter, sans-serif'
               }}
             >
-              This quick tool helps us explore what's possible - based on your current 
-              property, your goals, and your finances. We'll use it together to compare 
-              different strategies and see where we can go from here.
+              See how different strategies could help you time your move and secure your next property.
             </Typography>
+
+            {/* Powered by section */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+              <Typography 
+                sx={{ 
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: '#555159',
+                  lineHeight: '14px',
+                  fontFamily: 'Inter, sans-serif'
+                }}
+              >
+                Powered by
+              </Typography>
+              <Box 
+                component="img" 
+                src="/realestate-logo.png"
+                alt="realestate.com.au"
+                sx={{ 
+                  height: 24,
+                  width: 'auto',
+                  display: 'block'
+                }}
+              />
+            </Box>
           </Stack>
 
-          {/* PropTrack Branding */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" color="text.secondary">
-              Powered by
-            </Typography>
-            <Box 
-              component="img" 
-              src="/proptrack-logo.svg"
-              alt="PropTrack"
-              sx={{ 
-                height: 20,
-                width: 'auto',
-                display: 'block'
-              }}
-            />
-          </Box>
-
-          {/* Address Search Input */}
-          <Box sx={{ width: '100%', maxWidth: 600 }}>
+          {/* Address search and buttons group */}
+          <Stack spacing={4} alignItems="center" sx={{ width: '100%' }}>
+            {/* Address Search Input */}
+            <Box sx={{ width: '100%', maxWidth: 600 }}>
             <AddressAutocomplete
               placeholder="Enter your current property address to get started"
               onAddressSelect={handleAddressSelect}
@@ -142,44 +139,43 @@ export const LandingPage: React.FC = () => {
             />
           </Box>
 
-          {/* Validation Message */}
-          {showValidationMessage && (
-            <Alert 
-              severity="info" 
-              sx={{ 
-                width: '100%', 
-                maxWidth: 600,
-                mt: 2
-              }}
-            >
-              Please enter your property address to continue
-            </Alert>
-          )}
+            {/* Validation Message */}
+            {showValidationMessage && (
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  width: '100%', 
+                  maxWidth: 600
+                }}
+              >
+                Please enter your property address to continue
+              </Alert>
+            )}
 
-          {/* CTA Buttons */}
-          <Stack 
-            direction="row"
-            spacing={3} 
-            alignItems="center"
-            justifyContent="center"
-            sx={{ 
-              width: '100%',
-              mt: 3
-            }}
-          >
+            {/* CTA Buttons */}
+            <Stack 
+              direction="row"
+              spacing={2} 
+              alignItems="center"
+              justifyContent="center"
+            >
             <Button
               variant="contained"
               size="large"
               onClick={() => handleCTAClick('standard')}
               disableElevation
               sx={{
-                minHeight: 48,
-                px: 4,
-                fontSize: '1.125rem',
+                minHeight: 42,
+                px: 3,
+                fontSize: '15px',
+                fontWeight: 500,
+                lineHeight: '26px',
+                letterSpacing: '0.46px',
                 textTransform: 'none',
-                backgroundColor: 'primary.main',
+                backgroundColor: '#9c27b0',
+                fontFamily: 'Inter, sans-serif',
                 '&:hover': {
-                  backgroundColor: 'primary.dark',
+                  backgroundColor: '#7b1fa2',
                 }
               }}
             >
@@ -192,18 +188,23 @@ export const LandingPage: React.FC = () => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 0.5,
-                fontSize: '1rem',
-                color: 'primary.main',
+                gap: 1,
+                fontSize: '13px',
+                fontWeight: 500,
+                lineHeight: '22px',
+                letterSpacing: '0.46px',
+                color: '#9c27b0',
                 cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif',
                 '&:hover': {
-                  color: 'primary.dark',
+                  color: '#7b1fa2',
                 }
               }}
             >
               Bridging calculator
-              <ArrowForwardIcon sx={{ fontSize: 20 }} />
+              <ArrowForwardIcon sx={{ fontSize: 18 }} />
             </Link>
+            </Stack>
           </Stack>
 
           {/* Debug Info - Remove in production */}
@@ -217,21 +218,6 @@ export const LandingPage: React.FC = () => {
           )}
         </Stack>
       </Container>
-
-      {/* Footer Placeholder */}
-      <Box 
-        sx={{ 
-          height: 64,
-          backgroundColor: '#e5e5e5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          FOOTER PLACEHOLDER
-        </Typography>
-      </Box>
     </Box>
   );
 };
