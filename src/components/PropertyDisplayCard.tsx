@@ -5,9 +5,8 @@ import {
   Typography, 
   Box, 
   Chip, 
-  IconButton,
-  LinearProgress,
-  Stack
+  Stack,
+  Button
 } from '@mui/material';
 import { 
   Edit as EditIcon,
@@ -15,10 +14,13 @@ import {
   Bed as BedIcon,
   Bathtub as BathtubIcon,
   DirectionsCar as CarIcon,
-  ArrowOutward as ArrowOutwardIcon
+  ArrowOutward as ArrowOutwardIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon
 } from '@mui/icons-material';
 import { useProperty } from '../contexts/PropertyContext';
 import { PropertyAttributesModal } from './PropertyAttributesModal';
+import { useCurrentPropertyMarketData } from '../hooks/useCurrentPropertyMarketData';
 
 // Placeholder icons - these would be replaced with the actual design system icons
 const LandSizeIcon = () => (
@@ -108,7 +110,6 @@ export const PropertyDisplayCard: React.FC<PropertyDisplayCardProps> = ({
   };
 
 
-  const progressValue = ((displayData.estimate - displayData.lowEstimate) / (displayData.highEstimate - displayData.lowEstimate)) * 100;
 
   return (
     <Card 
@@ -164,60 +165,48 @@ export const PropertyDisplayCard: React.FC<PropertyDisplayCardProps> = ({
         {/* Property Details */}
         <CardContent sx={{ flex: 1, padding: 3, order: 2 }}>
           <Stack spacing={3} sx={{ height: '100%', justifyContent: 'center' }}>
-            {/* Address and Edit Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Stack spacing={1}>
-                <Chip 
-                  label={displayData.marketStatus} 
-                  size="small"
+            {/* Address */}
+            <Stack spacing={1}>
+              <Chip 
+                label={displayData.marketStatus} 
+                size="small"
+                sx={{ 
+                  backgroundColor: displayData.marketStatus === 'For Sale' ? 'rgba(76, 175, 80, 0.12)' : 'rgba(0,0,0,0.08)',
+                  color: displayData.marketStatus === 'For Sale' ? '#2e7d32' : 'rgba(0,0,0,0.87)',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  height: 24,
+                  borderRadius: '100px',
+                  width: 'fit-content'
+                }}
+              />
+              <Box>
+                <Typography 
+                  variant="h6" 
                   sx={{ 
-                    backgroundColor: displayData.marketStatus === 'For Sale' ? 'rgba(76, 175, 80, 0.12)' : 'rgba(0,0,0,0.08)',
-                    color: displayData.marketStatus === 'For Sale' ? '#2e7d32' : 'rgba(0,0,0,0.87)',
-                    fontWeight: 500,
-                    fontSize: 14,
-                    height: 24,
-                    borderRadius: '100px'
-                  }}
-                />
-                <Box>
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      fontSize: 20, 
-                      lineHeight: '24px',
-                      color: '#2a2630',
-                      letterSpacing: '-0.25px'
-                    }}
-                  >
-                    {displayData.address}
-                  </Typography>
-                  <Typography 
-                    variant="subtitle1" 
-                    sx={{ 
-                      fontWeight: 500, 
-                      fontSize: 18, 
-                      lineHeight: '24px',
-                      color: 'rgba(0,0,0,0.6)',
-                      letterSpacing: '-0.25px'
-                    }}
-                  >
-                    {displayData.suburb}
-                  </Typography>
-                </Box>
-              </Stack>
-              {showEditButton && (
-                <IconButton 
-                  onClick={onEdit}
-                  sx={{ 
-                    padding: '5px',
-                    '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                    fontWeight: 'bold', 
+                    fontSize: 20, 
+                    lineHeight: '24px',
+                    color: '#2a2630',
+                    letterSpacing: '-0.25px'
                   }}
                 >
-                  <EditIcon sx={{ fontSize: 20 }} />
-                </IconButton>
-              )}
-            </Box>
+                  {displayData.address}
+                </Typography>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ 
+                    fontWeight: 500, 
+                    fontSize: 18, 
+                    lineHeight: '24px',
+                    color: 'rgba(0,0,0,0.6)',
+                    letterSpacing: '-0.25px'
+                  }}
+                >
+                  {displayData.suburb}
+                </Typography>
+              </Box>
+            </Stack>
 
             {/* Property Features */}
             <Stack spacing={3}>
@@ -260,6 +249,27 @@ export const PropertyDisplayCard: React.FC<PropertyDisplayCardProps> = ({
                     </Typography>
                   </Stack>
                 </Stack>
+                {showEditButton && (
+                  <Button
+                    onClick={onEdit}
+                    endIcon={<EditIcon sx={{ fontSize: 18 }} />}
+                    sx={{
+                      color: '#9c27b0',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      lineHeight: '22px',
+                      letterSpacing: '0.46px',
+                      textTransform: 'none',
+                      padding: '4px 8px',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        color: '#7b1fa2'
+                      }
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
               </Box>
 
               {/* Property Valuation */}
@@ -328,6 +338,20 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
   const [updatedValuations, setUpdatedValuations] = useState<any>(null);
   const [updatedAttributes, setUpdatedAttributes] = useState<any>(null);
 
+  // Extract location data for market data hook
+  const suburb = props.propertyData?.address?.suburb || null;
+  const state = props.propertyData?.address?.state || null;
+  const postcode = props.propertyData?.address?.postcode || null;
+  const propertyType = props.propertyData?.attributes?.propertyType || null;
+
+  // Fetch market growth data
+  const { data: marketData } = useCurrentPropertyMarketData(
+    suburb,
+    state,
+    postcode,
+    propertyType
+  );
+
   const handleEditClick = () => {
     setModalOpen(true);
   };
@@ -358,17 +382,75 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
 
   return (
     <Box>
-      <PropertyDisplayCard 
-        {...props}
-        propertyData={currentPropertyData}
-        valuations={currentValuations}
-        onEdit={handleEditClick}
-      />
+      {/* Main content with property card and market growth */}
+      <Box sx={{ display: 'flex', gap: 4, alignItems: 'stretch' }}>
+        {/* Property Card */}
+        <Box sx={{ flex: 1 }}>
+          <PropertyDisplayCard 
+            {...props}
+            propertyData={currentPropertyData}
+            valuations={currentValuations}
+            onEdit={handleEditClick}
+          />
+        </Box>
+        
+        {/* Market Growth Trend */}
+        {marketData?.growthRate12Months !== null && (
+          <Card 
+            sx={{ 
+              width: 200,
+              borderRadius: 2,
+              border: '1px solid #e0e0e0',
+              boxShadow: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 2,
+              backgroundColor: '#ffffff'
+            }}
+          >
+            <Stack spacing={1} alignItems="center">
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Typography 
+                  sx={{ 
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: marketData!.growthRate12Months >= 0 ? '#2e7d32' : '#d32f2f',
+                    letterSpacing: '-0.25px'
+                  }}
+                >
+                  {marketData!.growthRate12Months >= 0 ? '+' : ''}
+                  {marketData!.growthRate12Months.toFixed(2)}%
+                </Typography>
+                {marketData!.growthRate12Months >= 0 ? (
+                  <TrendingUpIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
+                ) : (
+                  <TrendingDownIcon sx={{ fontSize: 24, color: '#d32f2f' }} />
+                )}
+              </Stack>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Typography 
+                  sx={{ 
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: '#2a2630'
+                  }}
+                >
+                  12 month growth trend
+                </Typography>
+                <ArrowOutwardIcon sx={{ fontSize: 16 }} />
+              </Stack>
+            </Stack>
+          </Card>
+        )}
+      </Box>
+      
       {/* PropTrack Attribution */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', padding: 1, paddingTop: 1 }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
-            realEstimate valuation powered by
+            Powered by
           </Typography>
           <Box component="img" src="/proptrack-logo.svg" alt="PropTrack" sx={{ height: 20, width: 75 }} />
         </Stack>

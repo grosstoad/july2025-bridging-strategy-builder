@@ -201,7 +201,7 @@ export const CurrentPropertyPage: React.FC = () => {
                         '& .MuiAlert-icon': { color: '#014361' }
                       }}
                     >
-                      Do your property details look correct? Update them for the most accurate realEstimate for your property.
+                      Are these property details right? Update for the most accurate estimate.
                     </Alert>
 
                     {/* Form Inputs */}
