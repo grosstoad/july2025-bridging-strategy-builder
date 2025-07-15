@@ -1,4 +1,4 @@
-import { BridgingCalculationEngine } from './BridgingCalculationEngine';
+import { BridgingCalculationEngine } from './bridgingCalculationEngine';
 import { BridgingInputs } from '../types/bridgingCalculator';
 
 export interface StrategyCalculationInputs {
