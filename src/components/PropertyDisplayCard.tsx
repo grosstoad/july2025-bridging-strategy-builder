@@ -395,7 +395,7 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
         </Box>
         
         {/* Market Growth Trend */}
-        {marketData?.growthRate12Months !== null && (
+        {marketData && marketData.growthRate12Months !== null && (
           <Card 
             sx={{ 
               width: 200,
@@ -416,14 +416,14 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
                   sx={{ 
                     fontSize: 20,
                     fontWeight: 'bold',
-                    color: marketData!.growthRate12Months >= 0 ? '#2e7d32' : '#d32f2f',
+                    color: marketData.growthRate12Months >= 0 ? '#2e7d32' : '#d32f2f',
                     letterSpacing: '-0.25px'
                   }}
                 >
-                  {marketData!.growthRate12Months >= 0 ? '+' : ''}
-                  {marketData!.growthRate12Months.toFixed(2)}%
+                  {marketData.growthRate12Months >= 0 ? '+' : ''}
+                  {marketData.growthRate12Months.toFixed(2)}%
                 </Typography>
-                {marketData!.growthRate12Months >= 0 ? (
+                {marketData.growthRate12Months >= 0 ? (
                   <TrendingUpIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
                 ) : (
                   <TrendingDownIcon sx={{ fontSize: 24, color: '#d32f2f' }} />
