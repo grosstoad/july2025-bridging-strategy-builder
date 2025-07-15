@@ -43,6 +43,7 @@ import { useTargetMarketData } from '../hooks/useMarketData';
 import { formatCurrency } from '../utils/formatters';
 import { extractValue, normalizePropertyData, normalizeValuations } from '../logic/propTrackDataNormalizer';
 import { PropertyDisplayCardWithAttribution } from '../components/PropertyDisplayCard';
+import { useProperty } from '../contexts/PropertyContext';
 
 interface FinancialInputs {
   expectedPurchasePrice: number;
@@ -52,6 +53,7 @@ interface FinancialInputs {
 
 export const TargetPropertyPage = () => {
   const navigate = useNavigate();
+  const { setTargetProperty } = useProperty();
   const [selection, setSelection] = useState<SearchSelection | null>(null);
   const [propertyType, setPropertyType] = useState<'house' | 'unit'>('house');
   const [bedrooms, setBedrooms] = useState<string>('3');
@@ -125,16 +127,25 @@ export const TargetPropertyPage = () => {
 
   // Pre-fill budget with estimated value when market data changes
   useEffect(() => {
-    if (marketData?.medianPrice && selection?.type === 'suburb') {
-      // Only update if budget is currently empty (0)
+    if (selection?.type === 'suburb' && marketData?.medianPrice) {
+      // For suburb selection, use median price
       if (financialInputs.expectedPurchasePrice === 0) {
         setFinancialInputs(prev => ({
           ...prev,
           expectedPurchasePrice: marketData.medianPrice
         }));
       }
+    } else if (selection?.type === 'address' && normalizedData.valuations?.valuations?.[0]?.estimate) {
+      // For property selection, use the property's estimated value
+      const estimate = normalizedData.valuations.valuations[0].estimate;
+      if (financialInputs.expectedPurchasePrice === 0) {
+        setFinancialInputs(prev => ({
+          ...prev,
+          expectedPurchasePrice: estimate
+        }));
+      }
     }
-  }, [marketData?.medianPrice, selection?.type, financialInputs.expectedPurchasePrice]);
+  }, [marketData?.medianPrice, selection?.type, financialInputs.expectedPurchasePrice, normalizedData.valuations]);
 
   // Currency formatting helpers
   const formatCurrencyInput = (value: number): string => {
@@ -158,13 +169,76 @@ export const TargetPropertyPage = () => {
   };
 
   const handleNext = () => {
+    // Convert SearchSelection to AddressSuggestion format
+    let addressData;
+    if (selection?.type === 'address') {
+      // For property selection, use the actual property data if available
+      if (propertyData) {
+        addressData = {
+          propertyId: selection.propertyId,
+          address: propertyData.address.address,
+          streetNumber: propertyData.address.streetNumber,
+          streetName: propertyData.address.streetName,
+          streetType: propertyData.address.streetType,
+          suburb: propertyData.address.suburb,
+          state: propertyData.address.state,
+          postcode: propertyData.address.postcode,
+          fullAddress: propertyData.address.address
+        };
+      } else {
+        // Fallback to selection data
+        addressData = {
+          propertyId: selection.propertyId,
+          fullAddress: selection.displayAddress,
+          address: selection.address
+        };
+      }
+    } else if (selection?.type === 'suburb') {
+      // For suburb selection, create a minimal address object
+      addressData = {
+        suburb: selection.suburb,
+        state: selection.state,
+        postcode: selection.postcode,
+        fullAddress: `${selection.suburb} ${selection.state} ${selection.postcode}`
+      };
+    }
+
+    // Save target property data to context
+    setTargetProperty({
+      propertyValue: financialInputs.expectedPurchasePrice,
+      address: addressData,
+      ...(selection?.type === 'address' && propertyData ? {
+        propertyId: selection.propertyId,
+        attributes: {
+          propertyType: extractValue(propertyData.attributes?.propertyType),
+          bedrooms: extractValue(propertyData.attributes?.bedrooms),
+          bathrooms: extractValue(propertyData.attributes?.bathrooms),
+          carSpaces: extractValue(propertyData.attributes?.carSpaces),
+          landSize: extractValue(propertyData.attributes?.landArea),
+          floorPlanSize: extractValue(propertyData.attributes?.livingArea)
+        },
+        valuation: normalizedData.valuations?.valuations?.[0] ? {
+          estimate: normalizedData.valuations.valuations[0].estimate,
+          lowEstimate: normalizedData.valuations.valuations[0].lowEstimate,
+          highEstimate: normalizedData.valuations.valuations[0].highEstimate,
+          confidence: normalizedData.valuations.valuations[0].confidence
+        } : undefined
+      } : {
+        // Suburb selection data
+        attributes: {
+          propertyType,
+          bedrooms: bedrooms === 'combined' ? undefined : parseInt(bedrooms)
+        }
+      })
+    });
+
     // Check if user clicked the bridging calculator CTA
     const ctaType = sessionStorage.getItem('ctaType');
     
     if (ctaType === 'calculator') {
       navigate('/bridging-calculator');
     } else {
-      navigate('/about-you');
+      navigate('/property-strategy');
     }
   };
 

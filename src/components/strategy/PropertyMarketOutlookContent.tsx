@@ -261,10 +261,225 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
 
         {/* Property Value Cards */}
         <Stack spacing={2}>
-          {strategy !== 'KB' && (
+          {/* For BBYS and SS: Show new property (buy) first */}
+          {(strategy === 'BBYS' || strategy === 'SS') && (
+            <>
+              <Box>
+                {/* Buy timing chip */}
+                {timing.buyDate && (
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                    <Box 
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: '#e0e0e0',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Chip
+                      label={`Buy in ${format(timing.buyDate, 'MMM yyyy')}`}
+                      size="small"
+                      sx={{
+                        backgroundColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        height: 28
+                      }}
+                    />
+                  </Stack>
+                )}
+                
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  sx={{ fontSize: '0.75rem', mb: 0.5 }}
+                >
+                  Your new property could be worth
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
+                >
+                  {formatCurrency(projectedNewValue)}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    color: newValueChange >= 0 ? 'error.main' : 'success.main'
+                  }}
+                >
+                  {newValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(newValueChange))} 
+                  {newValueChange >= 0 ? ' more' : ' less'} than your estimated value
+                </Typography>
+              </Box>
+
+              <Box>
+                {/* Sell timing chip */}
+                {timing.sellDate && (
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                    <Box 
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: '#e0e0e0',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Chip
+                      label={`Sell in ${format(timing.sellDate, 'MMM yyyy')}`}
+                      size="small"
+                      sx={{
+                        backgroundColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        height: 28
+                      }}
+                    />
+                  </Stack>
+                )}
+                
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  sx={{ fontSize: '0.75rem', mb: 0.5 }}
+                >
+                  Your current property could be worth
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
+                >
+                  {formatCurrency(projectedCurrentValue)}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    color: currentValueChange >= 0 ? 'success.main' : 'error.main'
+                  }}
+                >
+                  {currentValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(currentValueChange))} 
+                  {currentValueChange >= 0 ? ' more' : ' less'} than your estimated value
+                </Typography>
+              </Box>
+            </>
+          )}
+
+          {/* For SBYB: Show current property (sell) first */}
+          {strategy === 'SBYB' && (
+            <>
+              <Box>
+                {/* Sell timing chip */}
+                {timing.sellDate && (
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                    <Box 
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: '#e0e0e0',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Chip
+                      label={`Sell in ${format(timing.sellDate, 'MMM yyyy')}`}
+                      size="small"
+                      sx={{
+                        backgroundColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        height: 28
+                      }}
+                    />
+                  </Stack>
+                )}
+                
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  sx={{ fontSize: '0.75rem', mb: 0.5 }}
+                >
+                  Your current property could be worth
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
+                >
+                  {formatCurrency(projectedCurrentValue)}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    color: currentValueChange >= 0 ? 'success.main' : 'error.main'
+                  }}
+                >
+                  {currentValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(currentValueChange))} 
+                  {currentValueChange >= 0 ? ' more' : ' less'} than your estimated value
+                </Typography>
+              </Box>
+
+              <Box>
+                {/* Buy timing chip */}
+                {timing.buyDate && (
+                  <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+                    <Box 
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: '#e0e0e0',
+                        flexShrink: 0
+                      }}
+                    />
+                    <Chip
+                      label={`Buy in ${format(timing.buyDate, 'MMM yyyy')}`}
+                      size="small"
+                      sx={{
+                        backgroundColor: '#e0e0e0',
+                        fontSize: '0.75rem',
+                        fontWeight: 500,
+                        height: 28
+                      }}
+                    />
+                  </Stack>
+                )}
+                
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  sx={{ fontSize: '0.75rem', mb: 0.5 }}
+                >
+                  Your new property could be worth
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
+                >
+                  {formatCurrency(projectedNewValue)}
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontSize: '0.75rem',
+                    color: newValueChange >= 0 ? 'error.main' : 'success.main'
+                  }}
+                >
+                  {newValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(newValueChange))} 
+                  {newValueChange >= 0 ? ' more' : ' less'} than your estimated value
+                </Typography>
+              </Box>
+            </>
+          )}
+
+          {/* For KB: Only show new property */}
+          {strategy === 'KB' && (
             <Box>
-              {/* Contextual timing chip for current property */}
-              {((strategy === 'BBYS' || strategy === 'SS') && timing.sellDate) && (
+              {/* Buy timing chip */}
+              {timing.buyDate && (
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
                   <Box 
                     sx={{
@@ -276,30 +491,7 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
                     }}
                   />
                   <Chip
-                    label={`Sell in ${format(timing.sellDate, 'MMM yyyy')}`}
-                    size="small"
-                    sx={{
-                      backgroundColor: '#e0e0e0',
-                      fontSize: '0.75rem',
-                      fontWeight: 500,
-                      height: 28
-                    }}
-                  />
-                </Stack>
-              )}
-              {strategy === 'SBYB' && timing.sellDate && (
-                <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                  <Box 
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: '#e0e0e0',
-                      flexShrink: 0
-                    }}
-                  />
-                  <Chip
-                    label={`Sell in ${format(timing.sellDate, 'MMM yyyy')}`}
+                    label={`Buy in ${format(timing.buyDate, 'MMM yyyy')}`}
                     size="small"
                     sx={{
                       backgroundColor: '#e0e0e0',
@@ -316,100 +508,26 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
                 color="text.secondary" 
                 sx={{ fontSize: '0.75rem', mb: 0.5 }}
               >
-                Your current property could be worth
+                Your new property could be worth
               </Typography>
               <Typography 
                 variant="h6" 
                 sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
               >
-                {formatCurrency(projectedCurrentValue)}
+                {formatCurrency(projectedNewValue)}
               </Typography>
               <Typography 
                 variant="body2" 
                 sx={{ 
                   fontSize: '0.75rem',
-                  color: currentValueChange >= 0 ? 'success.main' : 'error.main'
+                  color: newValueChange >= 0 ? 'error.main' : 'success.main'
                 }}
               >
-                {currentValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(currentValueChange))} 
-                {currentValueChange >= 0 ? ' more' : ' less'} than your estimated value
+                {newValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(newValueChange))} 
+                {newValueChange >= 0 ? ' more' : ' less'} than your estimated value
               </Typography>
             </Box>
           )}
-
-          <Box>
-            {/* Contextual timing chip for new property */}
-            {((strategy === 'BBYS' || strategy === 'KB' || strategy === 'SS') && timing.buyDate) && (
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                <Box 
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: '#e0e0e0',
-                    flexShrink: 0
-                  }}
-                />
-                <Chip
-                  label={`Buy in ${format(timing.buyDate, 'MMM yyyy')}`}
-                  size="small"
-                  sx={{
-                    backgroundColor: '#e0e0e0',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    height: 28
-                  }}
-                />
-              </Stack>
-            )}
-            {strategy === 'SBYB' && timing.buyDate && (
-              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                <Box 
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: '#e0e0e0',
-                    flexShrink: 0
-                  }}
-                />
-                <Chip
-                  label={`Buy in ${format(timing.buyDate, 'MMM yyyy')}`}
-                  size="small"
-                  sx={{
-                    backgroundColor: '#e0e0e0',
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    height: 28
-                  }}
-                />
-              </Stack>
-            )}
-            
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ fontSize: '0.75rem', mb: 0.5 }}
-            >
-              Your new property could be worth
-            </Typography>
-            <Typography 
-              variant="h6" 
-              sx={{ fontSize: '1.25rem', fontWeight: 600, mb: 0.5 }}
-            >
-              {formatCurrency(projectedNewValue)}
-            </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                fontSize: '0.75rem',
-                color: newValueChange >= 0 ? 'error.main' : 'success.main'
-              }}
-            >
-              {newValueChange >= 0 ? '+' : ''}{formatCurrency(Math.abs(newValueChange))} 
-              {newValueChange >= 0 ? ' more' : ' less'} than your estimated value
-            </Typography>
-          </Box>
         </Stack>
 
         {/* Possible Shortfall/Gain - Large Chip */}

@@ -5,6 +5,7 @@ import { CurrentPropertyPage } from './pages/CurrentPropertyPage';
 import { TargetPropertyPage } from './pages/TargetPropertyPage';
 import { AboutYouPage } from './pages/AboutYouPage';
 import { BridgingCalculator } from './pages/BridgingCalculator';
+import { PropertyStrategyPlayback } from './pages/PropertyStrategyPlayback';
 import { TestBridgingCalculator } from './pages/TestBridgingCalculator';
 import { PropertyProvider } from './contexts/PropertyContext';
 
@@ -60,6 +61,7 @@ export const App = () => {
             <Route path="/current-property/:propertyId" element={<CurrentPropertyPage />} />
             <Route path="/current-property" element={<CurrentPropertyPage />} />
             <Route path="/target-property" element={<TargetPropertyPage />} />
+            <Route path="/property-strategy" element={<PropertyStrategyPlayback />} />
             <Route path="/bridging-calculator" element={<BridgingCalculator />} />
             <Route path="/about-you" element={<AboutYouPage />} />
             <Route path="/test-calculator" element={<TestBridgingCalculator />} />
