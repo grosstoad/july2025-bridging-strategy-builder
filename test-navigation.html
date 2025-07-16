@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Navigation Test</title>
+</head>
+<body>
+    <h1>Test Navigation Flow</h1>
+    <p>This page tests the navigation from Target Property to Property Strategy</p>
+    
+    <script>
+        // Simulate setting property data in sessionStorage
+        const currentProperty = {
+            propertyValue: 1960000,
+            loanBalance: 800000,
+            address: {
+                suburb: "Sydney",
+                state: "NSW",
+                postcode: "2000",
+                fullAddress: "Sydney NSW 2000"
+            }
+        };
+        
+        const targetProperty = {
+            propertyValue: 2500000,
+            address: {
+                suburb: "Bondi",
+                state: "NSW", 
+                postcode: "2026",
+                fullAddress: "Bondi NSW 2026"
+            }
+        };
+        
+        sessionStorage.setItem('currentProperty', JSON.stringify(currentProperty));
+        sessionStorage.setItem('targetProperty', JSON.stringify(targetProperty));
+        
+        console.log('Set current property:', currentProperty);
+        console.log('Set target property:', targetProperty);
+        
+        document.write('<p>Property data has been set in sessionStorage</p>');
+        document.write('<p>Current Property Value: $' + currentProperty.propertyValue.toLocaleString() + '</p>');
+        document.write('<p>Target Property Value: $' + targetProperty.propertyValue.toLocaleString() + '</p>');
+        document.write('<p><a href="http://localhost:3000/property-strategy">Go to Property Strategy Page</a></p>');
+    </script>
+</body>
+</html>

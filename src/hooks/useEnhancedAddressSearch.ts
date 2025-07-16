@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { PropTrackService } from '../services/proptrack';
 import { AddressSuggestion } from '../types/proptrack';
+import { filterMockSuggestions, filterMockSuburbs, shouldUseMockData } from '../services/mockPropTrackData';
 
 export interface SuburbSuggestion {
   name: string;
@@ -11,7 +12,7 @@ export interface SuburbSuggestion {
 }
 
 interface PropertySearchData {
-  propertyId?: number;
+  propertyId?: string;
   fullAddress: string;
   suburb?: string;
   state?: string;
@@ -78,7 +79,7 @@ export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
         const propertyMappedResults = propertyResults.value.map((suggestion: AddressSuggestion) => ({
           type: 'property' as const,
           data: {
-            propertyId: suggestion.propertyId ? parseInt(suggestion.propertyId) : undefined,
+            propertyId: suggestion.propertyId,
             fullAddress: suggestion.address.fullAddress,
             suburb: suggestion.address.suburb,
             state: suggestion.address.state,
@@ -148,6 +149,13 @@ async function searchPropertyAddresses(query: string, signal: AbortSignal): Prom
     if (error instanceof Error && error.name === 'AbortError') {
       throw error; // Re-throw abort errors to handle them properly
     }
+    
+    // Check if we should use mock data (e.g., 429 error)
+    if (shouldUseMockData(error)) {
+      console.log('Using mock property data due to API rate limit');
+      return filterMockSuggestions(query);
+    }
+    
     console.warn('PropTrack address search failed:', error);
     return [];
   }
@@ -196,6 +204,12 @@ async function searchSuburbs(query: string, signal: AbortSignal): Promise<Suburb
     
     return [];
   } catch (error) {
+    // Check if we should use mock data (e.g., network error)
+    if (shouldUseMockData(error)) {
+      console.log('Using mock suburb data due to API failure');
+      return filterMockSuburbs(query);
+    }
+    
     console.warn('Australia Post suburb search failed:', error);
     return [];
   }

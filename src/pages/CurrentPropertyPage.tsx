@@ -74,10 +74,11 @@ export const CurrentPropertyPage: React.FC = () => {
     const latestValuation = normalizedData.valuations?.valuations?.[0];
     const propTrackEstimate = latestValuation?.estimate;
     
-    // Pre-populate with PropTrack valuation if available, otherwise use context value
-    const valueToUse = propTrackEstimate || currentProperty.propertyValue;
+    // Pre-populate with PropTrack valuation if available, otherwise use context value or mock value
+    const valueToUse = propTrackEstimate || currentProperty.propertyValue || 1960000;
     
-    if (valueToUse && !propertyValue) {
+    // Only update if the field is empty or if we have a new PropTrack estimate
+    if (!propertyValue || (propTrackEstimate && propTrackEstimate.toString() !== propertyValue)) {
       setPropertyValue(valueToUse.toString());
       // Update context with PropTrack valuation if we got one
       if (propTrackEstimate && propTrackEstimate !== currentProperty.propertyValue) {
@@ -92,10 +93,10 @@ export const CurrentPropertyPage: React.FC = () => {
       }
     }
     
-    if (currentProperty.loanBalance) {
+    if (currentProperty.loanBalance && !loanBalance) {
       setLoanBalance(currentProperty.loanBalance.toString());
     }
-  }, [currentProperty, normalizedData.valuations, propertyValue, setCurrentProperty]);
+  }, [currentProperty.propertyValue, currentProperty.loanBalance, normalizedData.valuations, setCurrentProperty]);
 
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat('en-AU', {

@@ -272,59 +272,6 @@ export const PropertyDisplayCard: React.FC<PropertyDisplayCardProps> = ({
                 )}
               </Box>
 
-              {/* Property Valuation */}
-              <Stack spacing={1}>
-                {/* Progress Bar */}
-                <Box sx={{ position: 'relative', height: 24, borderRadius: '64px', backgroundColor: '#f2ecff' }}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    height: '100%',
-                    paddingX: 2
-                  }}>
-                    <Typography variant="caption" sx={{ fontWeight: 'bold', fontSize: 12, color: '#000000' }}>
-                      ${(displayData.lowEstimate / 1000000).toFixed(2)}m
-                    </Typography>
-                    <Box sx={{
-                      backgroundColor: '#350736',
-                      color: '#ffffff',
-                      paddingX: 1.5,
-                      paddingY: 0.5,
-                      borderRadius: '32px',
-                      fontWeight: 'bold',
-                      fontSize: 16
-                    }}>
-                      {formatCurrency(displayData.estimate)}
-                    </Box>
-                    <Typography variant="caption" sx={{ fontWeight: 'bold', fontSize: 12, color: '#000000' }}>
-                      ${(displayData.highEstimate / 1000000).toFixed(2)}m
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Valuation Labels */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 2 }}>
-                  <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
-                    Low
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} alignItems="center">
-                    <Box sx={{ 
-                      width: 8, 
-                      height: 8, 
-                      borderRadius: '50%', 
-                      backgroundColor: '#007443' 
-                    }} />
-                    <Typography variant="body2" sx={{ fontSize: 14, color: '#2a2630', fontWeight: 500 }}>
-                      Estimated value
-                    </Typography>
-                    <ArrowOutwardIcon sx={{ fontSize: 16 }} />
-                  </Stack>
-                  <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
-                    High
-                  </Typography>
-                </Box>
-              </Stack>
             </Stack>
           </Stack>
         </CardContent>
@@ -380,74 +327,139 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
     }
   } : props.propertyData;
 
+  // Get valuation data from props
+  const latestValuation = currentValuations?.valuations?.[0];
+  const estimate = latestValuation?.estimate || currentPropertyData?.valuation?.estimate || props.propertyData?.valuation?.estimate || 1960000;
+  const lowEstimate = latestValuation?.lowEstimate || currentPropertyData?.valuation?.lowEstimate || 1740000;
+  const highEstimate = latestValuation?.highEstimate || currentPropertyData?.valuation?.highEstimate || 2670000;
+
+  const formatCurrency = (value?: number): string => {
+    if (!value) return '$0';
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+
   return (
-    <Box>
-      {/* Main content with property card and market growth */}
-      <Box sx={{ display: 'flex', gap: 4, alignItems: 'stretch' }}>
-        {/* Property Card */}
-        <Box sx={{ flex: 1 }}>
-          <PropertyDisplayCard 
-            {...props}
-            propertyData={currentPropertyData}
-            valuations={currentValuations}
-            onEdit={handleEditClick}
-          />
-        </Box>
-        
-        {/* Market Growth Trend */}
-        {marketData && marketData.growthRate12Months !== null && (
-          <Card 
-            sx={{ 
-              width: 200,
-              borderRadius: 2,
-              border: '1px solid #e0e0e0',
-              boxShadow: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: 2,
-              backgroundColor: '#ffffff'
-            }}
-          >
-            <Stack spacing={1} alignItems="center">
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <Typography 
-                  sx={{ 
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                    color: marketData.growthRate12Months >= 0 ? '#2e7d32' : '#d32f2f',
-                    letterSpacing: '-0.25px'
-                  }}
-                >
-                  {marketData.growthRate12Months >= 0 ? '+' : ''}
-                  {marketData.growthRate12Months.toFixed(2)}%
-                </Typography>
-                {marketData.growthRate12Months >= 0 ? (
-                  <TrendingUpIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
-                ) : (
-                  <TrendingDownIcon sx={{ fontSize: 24, color: '#d32f2f' }} />
-                )}
-              </Stack>
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <Typography 
-                  sx={{ 
-                    fontSize: 12,
-                    fontWeight: 500,
-                    color: '#2a2630'
-                  }}
-                >
-                  12 month growth trend
-                </Typography>
-                <ArrowOutwardIcon sx={{ fontSize: 16 }} />
-              </Stack>
-            </Stack>
-          </Card>
-        )}
-      </Box>
+    <Stack spacing={2}>
+      {/* Property Card */}
+      <PropertyDisplayCard 
+        {...props}
+        propertyData={currentPropertyData}
+        valuations={currentValuations}
+        onEdit={handleEditClick}
+      />
       
-      {/* PropTrack Attribution */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', padding: 1, paddingTop: 1 }}>
+      {/* Valuation Section - Separate from Property Card */}
+      <Card 
+        sx={{ 
+          borderRadius: 3,
+          border: '1px solid #e0e0e0',
+          boxShadow: 'none',
+          backgroundColor: '#ffffff'
+        }}
+      >
+        <CardContent sx={{ padding: 4 }}>
+          <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start' }}>
+            {/* Valuation Bar Section */}
+            <Stack spacing={1} sx={{ flex: 1 }}>
+              {/* Progress Bar */}
+              <Box sx={{ position: 'relative', height: 24, borderRadius: '64px', backgroundColor: '#f2ecff' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  height: '100%',
+                  paddingX: 2
+                }}>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', fontSize: 12, color: '#000000' }}>
+                    ${(lowEstimate / 1000000).toFixed(2)}m
+                  </Typography>
+                  <Box sx={{
+                    backgroundColor: '#350736',
+                    color: '#ffffff',
+                    paddingX: 1.5,
+                    paddingY: 0.5,
+                    borderRadius: '32px',
+                    fontWeight: 'bold',
+                    fontSize: 18
+                  }}>
+                    {formatCurrency(estimate)}
+                  </Box>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', fontSize: 12, color: '#000000' }}>
+                    ${(highEstimate / 1000000).toFixed(2)}m
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Valuation Labels */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: 2 }}>
+                <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
+                  Low
+                </Typography>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Box sx={{ 
+                    width: 8, 
+                    height: 8, 
+                    borderRadius: '50%', 
+                    backgroundColor: '#007443' 
+                  }} />
+                  <Typography variant="body2" sx={{ fontSize: 12, color: '#2a2630', fontWeight: 500 }}>
+                    Estimated value
+                  </Typography>
+                  <ArrowOutwardIcon sx={{ fontSize: 16 }} />
+                </Stack>
+                <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
+                  High
+                </Typography>
+              </Box>
+            </Stack>
+
+            {/* Growth Trend */}
+            {marketData && marketData.growthRate12Months !== null && (
+              <Stack spacing={0.5} alignItems="center" sx={{ minWidth: 140 }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Typography 
+                    sx={{ 
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      color: marketData.growthRate12Months >= 0 ? '#2e7d32' : '#d32f2f',
+                      letterSpacing: '-0.25px'
+                    }}
+                  >
+                    {marketData.growthRate12Months >= 0 ? '+' : ''}
+                    {marketData.growthRate12Months.toFixed(2)}%
+                  </Typography>
+                  {marketData.growthRate12Months >= 0 ? (
+                    <TrendingUpIcon sx={{ fontSize: 24, color: '#2e7d32' }} />
+                  ) : (
+                    <TrendingDownIcon sx={{ fontSize: 24, color: '#d32f2f' }} />
+                  )}
+                </Stack>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Typography 
+                    sx={{ 
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: '#2a2630',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    12 month growth trend
+                  </Typography>
+                  <ArrowOutwardIcon sx={{ fontSize: 16 }} />
+                </Stack>
+              </Stack>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+      
+      {/* PropTrack Attribution - Below Valuation */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Stack direction="row" spacing={1} alignItems="center">
           <Typography variant="caption" sx={{ fontSize: 11, color: '#555159', fontWeight: 500 }}>
             Powered by
@@ -464,6 +476,6 @@ export const PropertyDisplayCardWithAttribution: React.FC<PropertyDisplayCardPro
         valuations={props.valuations}
         onUpdate={handleAttributesUpdate}
       />
-    </Box>
+    </Stack>
   );
 };

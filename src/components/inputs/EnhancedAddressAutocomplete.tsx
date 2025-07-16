@@ -1,4 +1,4 @@
-// Enhanced address autocomplete component that supports both property addresses and suburbs
+ // Enhanced address autocomplete component that supports both property addresses and suburbs
 
 import { Autocomplete, TextField, Box, Typography, CircularProgress } from '@mui/material';
 import { LocationOn, Home } from '@mui/icons-material';

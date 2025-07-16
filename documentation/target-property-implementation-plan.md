@@ -1,4 +1,4 @@
-# Target Property Selection Page - Implementation Plan
+Ca# Target Property Selection Page - Implementation Plan
 
 ## Overview
 
@@ -157,13 +157,12 @@ const TargetPropertyPage = () => {
 
 ### Phase 5: API Integration
 
-**Backend Proxy Endpoints (Already Configured):**
-The market data endpoints are already registered in `proptrack-proxy.ts` using the generic proxy pattern:
+**Backend Proxy Endpoints (Already Supported):**
 ```typescript
-// Already implemented in proptrack-proxy.ts
-router.use('/v2/market/sale/historic/median-sale-price', propTrackApiProxy);
-router.use('/v2/market/sale/historic/median-days-on-market', propTrackApiProxy);
-router.use('/v2/market/supply-and-demand/potential-buyers', propTrackApiProxy);
+// Existing PropTrack market data endpoints in proptrack-proxy.ts
+router.get('/v2/market/sale/historic/median-sale-price', getMedianSalePrice);
+router.get('/v2/market/sale/historic/median-days-on-market', getMedianDaysOnMarket);
+router.get('/v2/market/supply-and-demand/potential-buyers', getPotentialBuyers);
 ```
 
 **Data Fetching Strategy:**
@@ -176,68 +175,14 @@ router.use('/v2/market/supply-and-demand/potential-buyers', propTrackApiProxy);
    - Directly fetch market data using selected suburb/state/postcode
    - Calculate estimated values based on property type and bedrooms
 
-**Service Layer Extensions:**
+**Hook Implementations:**
 
-First, add market data methods to `PropTrackService` in `src/services/proptrack.ts`:
 ```typescript
-// Add to PropTrackService class
-static async getMedianSalePrice(params: MedianSalePriceRequest): Promise<MarketMetricResponse[]> {
-  return this.makeRequest('/v2/market/sale/historic/median-sale-price', 'GET', params);
-}
-
-static async getMedianDaysOnMarket(params: MedianDaysOnMarketRequest): Promise<MarketMetricResponse[]> {
-  return this.makeRequest('/v2/market/sale/historic/median-days-on-market', 'GET', params);
-}
-
-static async getPotentialBuyersSupplyDemand(params: PotentialBuyersRequest): Promise<MarketMetricResponse[]> {
-  return this.makeRequest('/v2/market/supply-and-demand/potential-buyers', 'GET', params);
-}
-```
-
-**Type Definitions:**
-
-Add to `src/types/proptrack.ts`:
-```typescript
-export interface MedianSalePriceRequest {
-  suburb: string;
-  state: string;
-  postcode: string;
-  propertyTypes: string;
-  startDate: string;
-  endDate: string;
-  frequency?: string;
-}
-
-export interface MarketMetricResponse {
-  propertyType: string;
-  dateRanges: MarketDateRange[];
-}
-
-export interface MarketDateRange {
-  startDate: string;
-  endDate: string;
-  metricValues: MarketMetricValue[];
-}
-
-export interface MarketMetricValue {
-  bedrooms: string;
-  value?: number;
-  supply?: number;
-  demand?: number;
-  supplyChangePercentage?: number | null;
-  demandChangePercentage?: number | null;
-}
-```
-
-**Hook Implementation:**
-
-Create `src/hooks/useMarketData.ts` following the established patterns:
-```typescript
+// useSuburbMarketData.ts
 import { useState, useEffect, useRef } from 'react';
-import { PropTrackService } from '../services/proptrack';
-import { MarketMetricResponse } from '../types/proptrack';
+import { propTrackAPI } from '../services/proptrack';
 
-interface MarketData {
+interface SuburbMarketData {
   medianPrice: number | null;
   priceGrowth12Months: number | null;
   medianDaysOnMarket: number | null;
@@ -245,18 +190,17 @@ interface MarketData {
   lastUpdated: Date;
 }
 
-export const useMarketData = (
+export const useSuburbMarketData = (
   suburb: string | null,
   state: string | null,
   postcode: string | null,
   propertyType: 'house' | 'unit' | null,
   bedrooms?: number
 ) => {
-  const [data, setData] = useState<MarketData | null>(null);
+  const [data, setData] = useState<SuburbMarketData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const cacheKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!suburb || !state || !postcode || !propertyType) {
@@ -265,19 +209,6 @@ export const useMarketData = (
     }
 
     const fetchMarketData = async () => {
-      // Check cache first
-      const cacheKey = `${suburb}|${state}|${postcode}|${propertyType}`;
-      if (cacheKey === cacheKeyRef.current && data) {
-        return; // Use existing data
-      }
-      
-      const cached = MarketDataCache.get(suburb, state, postcode, propertyType);
-      if (cached) {
-        setData(cached);
-        cacheKeyRef.current = cacheKey;
-        return;
-      }
-
       // Cancel previous request
       abortControllerRef.current?.abort();
       abortControllerRef.current = new AbortController();
@@ -286,9 +217,9 @@ export const useMarketData = (
       setError(null);
 
       try {
-        // Parallel fetch all market data (following usePropertyData pattern)
+        // Parallel fetch all market data
         const [priceData, daysData, supplyDemandData] = await Promise.allSettled([
-          PropTrackService.getMedianSalePrice({
+          propTrackAPI.getMedianSalePrice({
             suburb: suburb.toUpperCase(),
             state,
             postcode,
@@ -296,7 +227,7 @@ export const useMarketData = (
             startDate: getStartDate(12), // Last 12 months
             endDate: getEndDate()
           }),
-          PropTrackService.getMedianDaysOnMarket({
+          propTrackAPI.getMedianDaysOnMarket({
             suburb: suburb.toUpperCase(),
             state,
             postcode,
@@ -304,7 +235,7 @@ export const useMarketData = (
             startDate: getStartDate(3), // Last 3 months
             endDate: getEndDate()
           }),
-          PropTrackService.getPotentialBuyersSupplyDemand({
+          propTrackAPI.getPotentialBuyersSupplyDemand({
             suburb: suburb.toUpperCase(),
             state,
             postcode,
@@ -360,19 +291,13 @@ export const useMarketData = (
           }
         }
 
-        const marketData: MarketData = {
+        setData({
           medianPrice,
           priceGrowth12Months: priceGrowth,
           medianDaysOnMarket: medianDays,
           supplyDemandRatio,
           lastUpdated: new Date()
-        };
-        
-        setData(marketData);
-        cacheKeyRef.current = cacheKey;
-        
-        // Cache the results
-        MarketDataCache.set(suburb, state, postcode, propertyType, marketData);
+        });
 
       } catch (err: any) {
         if (err.name !== 'AbortError') {
@@ -406,63 +331,6 @@ function getEndDate(): string {
   const date = new Date();
   date.setDate(1);
   return date.toISOString().slice(0, 10);
-}
-```
-
-**Caching Implementation:**
-
-```typescript
-// Add to existing caching utilities or create new file
-class MarketDataCache {
-  private static getCacheKey(
-    suburb: string, 
-    state: string, 
-    postcode: string, 
-    propertyType: string
-  ): string {
-    return `marketData:${suburb}|${state}|${postcode}|${propertyType}`;
-  }
-  
-  static get(
-    suburb: string, 
-    state: string, 
-    postcode: string, 
-    propertyType: string
-  ): MarketData | null {
-    try {
-      const key = this.getCacheKey(suburb, state, postcode, propertyType);
-      const cached = sessionStorage.getItem(key);
-      if (!cached) return null;
-      
-      const data = JSON.parse(cached);
-      const cacheAge = Date.now() - new Date(data.lastUpdated).getTime();
-      
-      // Cache for 15 minutes
-      if (cacheAge > 15 * 60 * 1000) {
-        sessionStorage.removeItem(key);
-        return null;
-      }
-      
-      return data;
-    } catch {
-      return null;
-    }
-  }
-  
-  static set(
-    suburb: string, 
-    state: string, 
-    postcode: string, 
-    propertyType: string,
-    data: MarketData
-  ): void {
-    try {
-      const key = this.getCacheKey(suburb, state, postcode, propertyType);
-      sessionStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.warn('Failed to cache market data:', error);
-    }
-  }
 }
 ```
 
@@ -528,60 +396,10 @@ class MarketDataCache {
 7. Financial inputs validate and format correctly
 8. Page matches Figma design specifications
 
-## Implementation Status
+## Next Steps
 
-### Completed Features
-
-1. **Enhanced Address Search Integration**
-   - ✅ Created `EnhancedAddressAutocomplete` component using existing hook
-   - ✅ Combined PropTrack property search with Australia Post suburb search
-   - ✅ Visual differentiation between property and suburb results
-   - ✅ Mock data implementation for testing without API keys
-
-2. **Target Property Page Layout**
-   - ✅ Created `TargetPropertyPage.tsx` with progress timeline on left side
-   - ✅ Conditional rendering for property vs suburb selection
-   - ✅ Financial inputs section with currency formatting
-   - ✅ Navigation buttons with validation
-
-3. **Market Data Integration**
-   - ✅ Added market data methods to `PropTrackService`
-   - ✅ Created market data types and interfaces
-   - ✅ Implemented `useMarketData` hook with caching and error handling
-   - ✅ Market insights display with median price, growth, days on market, and supply/demand
-
-4. **Australia Post API Updates**
-   - ✅ Updated proxy to use correct `/shipping/v1/address` endpoint
-   - ✅ Mock data fallback when API key not configured
-   - ✅ Response transformation to match expected format
-
-5. **Property-Specific Display**
-   - ✅ Reused property data fetching from Current Property page
-   - ✅ Display property details, type, bedrooms, and estimated value
-   - ✅ Loading and error states
-
-6. **Suburb-Specific Display**
-   - ✅ Property type selector (House/Unit)
-   - ✅ Bedroom selector dropdown
-   - ✅ Market statistics display
-   - ✅ Dynamic updates based on selections
-
-### Pending Tasks
-
-1. **API Authentication**
-   - ⏳ Need valid Australia Post API key for production use
-   - ⏳ Currently using mock data for suburb search
-
-2. **Enhanced Features**
-   - ⏳ Cross-tab synchronization for form state
-   - ⏳ Session storage persistence
-   - ⏳ More comprehensive market data visualizations
-
-## Testing Summary
-
-The enhanced address search is now fully functional with:
-- Property address search via PropTrack API
-- Suburb search via Australia Post API (with mock data fallback)
-- Combined results with visual differentiation
-- Proper error handling and loading states
-- Market data fetching for both property and suburb selections
+1. Confirm PropTrack market data API endpoints and documentation
+2. Review Figma designs for exact visual specifications
+3. Begin Phase 1 implementation with enhanced address search
+4. Set up new API proxy endpoints for market data
+5. Create reusable market data display components

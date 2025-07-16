@@ -3,6 +3,20 @@
 import { AddressSuggestion } from '../types/proptrack';
 import { PropertyData, PropertyValuation } from '../types/property';
 
+// Mock suburbs for development
+export const mockSuburbs = [
+  { name: 'Melbourne', state: 'VIC', postcode: '3000', latitude: -37.8136, longitude: 144.9631 },
+  { name: 'South Yarra', state: 'VIC', postcode: '3141', latitude: -37.8456, longitude: 144.9934 },
+  { name: 'Armadale', state: 'VIC', postcode: '3143', latitude: -37.8556, longitude: 145.0195 },
+  { name: 'Brighton', state: 'VIC', postcode: '3186', latitude: -37.9180, longitude: 144.9938 },
+  { name: 'Toorak', state: 'VIC', postcode: '3142', latitude: -37.8401, longitude: 145.0166 },
+  { name: 'Richmond', state: 'VIC', postcode: '3121', latitude: -37.8182, longitude: 145.0007 },
+  { name: 'Carlton', state: 'VIC', postcode: '3053', latitude: -37.8001, longitude: 144.9673 },
+  { name: 'Fitzroy', state: 'VIC', postcode: '3065', latitude: -37.8031, longitude: 144.9780 },
+  { name: 'St Kilda', state: 'VIC', postcode: '3182', latitude: -37.8678, longitude: 144.9819 },
+  { name: 'Prahran', state: 'VIC', postcode: '3181', latitude: -37.8501, longitude: 144.9897 }
+];
+
 // Mock address suggestions for common Melbourne suburbs
 export const mockAddressSuggestions: AddressSuggestion[] = [
   {
@@ -296,6 +310,20 @@ export function filterMockSuggestions(query: string): AddressSuggestion[] {
     suggestion.address.fullAddress.toLowerCase().includes(normalizedQuery) ||
     suggestion.address.suburb.toLowerCase().includes(normalizedQuery) ||
     suggestion.address.postcode.includes(normalizedQuery)
+  );
+}
+
+// Helper function to filter mock suburbs based on search query
+export function filterMockSuburbs(query: string) {
+  const normalizedQuery = query.toLowerCase().trim();
+  
+  if (normalizedQuery.length < 2) {
+    return [];
+  }
+  
+  return mockSuburbs.filter(suburb => 
+    suburb.name.toLowerCase().includes(normalizedQuery) ||
+    suburb.postcode.includes(normalizedQuery)
   );
 }
 
