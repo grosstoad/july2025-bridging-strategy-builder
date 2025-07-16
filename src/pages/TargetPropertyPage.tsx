@@ -674,7 +674,7 @@ export const TargetPropertyPage = () => {
                         />
 
                         <TextField
-                          label="Additional cash"
+                          label="Additional cash out"
                           value={formatCurrencyInput(financialInputs.additionalCashToBorrow)}
                           onChange={handleFinancialInputChange('additionalCashToBorrow')}
                           InputProps={{
