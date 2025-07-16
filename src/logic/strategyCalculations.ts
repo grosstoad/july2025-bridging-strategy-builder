@@ -73,21 +73,13 @@ export const calculateBBYS = (inputs: StrategyCalculationInputs): StrategyCalcul
   const calculator = new BridgingCalculationEngine();
   const results = calculator.calculate(bridgingInputs);
 
-  // Calculate end debt after selling current property
-  const sellingCosts = inputs.currentPropertyValue * (sellingCostsPercent / 100);
-  const netSaleProceeds = inputs.currentPropertyValue - sellingCosts - inputs.existingDebt;
-  
-  console.log('BBYS End Debt Calculation Breakdown:');
-  console.log('1. Selling costs:', sellingCosts.toLocaleString(), `(${sellingCostsPercent}% of ${inputs.currentPropertyValue.toLocaleString()})`);
-  console.log('2. Net sale proceeds:', netSaleProceeds.toLocaleString(), `(${inputs.currentPropertyValue.toLocaleString()} - ${sellingCosts.toLocaleString()} - ${inputs.existingDebt.toLocaleString()})`);
-  console.log('3. Bridge debt:', results.bridgeDebt.toLocaleString());
-  console.log('4. End debt from bridging calc:', results.endDebt.toLocaleString());
-  console.log('5. Bridging costs (fcap):', results.fcap.toLocaleString());
-  console.log('6. Total before sale proceeds:', (results.bridgeDebt + results.endDebt + results.fcap).toLocaleString());
-  console.log('7. Final end debt:', (results.bridgeDebt + results.endDebt + results.fcap - netSaleProceeds).toLocaleString());
-  
-  // End debt = Bridge debt + end debt + costs - net sale proceeds
-  const endDebt = Math.max(0, results.bridgeDebt + results.endDebt + results.fcap - netSaleProceeds);
+  // For BBYS, the end debt is simply the end debt from the bridging calculator
+  // The bridging calculator already accounts for everything:
+  // - Purchase of new property
+  // - Sale of existing property
+  // - All costs and fees
+  // - Bridge loan and its costs
+  const endDebt = Math.max(0, results.endDebt);
   
   // Calculate monthly repayment
   const monthlyRepayment = endDebt > 0 ? PMT(endLoanRate / 100 / 12, loanTerm * 12, endDebt) : 0;
