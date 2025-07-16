@@ -77,6 +77,15 @@ export const calculateBBYS = (inputs: StrategyCalculationInputs): StrategyCalcul
   const sellingCosts = inputs.currentPropertyValue * (sellingCostsPercent / 100);
   const netSaleProceeds = inputs.currentPropertyValue - sellingCosts - inputs.existingDebt;
   
+  console.log('BBYS End Debt Calculation Breakdown:');
+  console.log('1. Selling costs:', sellingCosts.toLocaleString(), `(${sellingCostsPercent}% of ${inputs.currentPropertyValue.toLocaleString()})`);
+  console.log('2. Net sale proceeds:', netSaleProceeds.toLocaleString(), `(${inputs.currentPropertyValue.toLocaleString()} - ${sellingCosts.toLocaleString()} - ${inputs.existingDebt.toLocaleString()})`);
+  console.log('3. Bridge debt:', results.bridgeDebt.toLocaleString());
+  console.log('4. End debt from bridging calc:', results.endDebt.toLocaleString());
+  console.log('5. Bridging costs (fcap):', results.fcap.toLocaleString());
+  console.log('6. Total before sale proceeds:', (results.bridgeDebt + results.endDebt + results.fcap).toLocaleString());
+  console.log('7. Final end debt:', (results.bridgeDebt + results.endDebt + results.fcap - netSaleProceeds).toLocaleString());
+  
   // End debt = Bridge debt + end debt + costs - net sale proceeds
   const endDebt = Math.max(0, results.bridgeDebt + results.endDebt + results.fcap - netSaleProceeds);
   
