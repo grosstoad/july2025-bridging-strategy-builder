@@ -22,7 +22,6 @@ import { PropertyMarketChip } from './PropertyMarketChip';
 import { MarketRisksSection } from './MarketRisksSection';
 import { IndicativeCostsSectionContent } from './IndicativeCostsSectionContent';
 import { ThingsToConsiderContent } from './ThingsToConsiderContent';
-import { ScenarioToggle } from './ScenarioToggle';
 import { StrategyCalculationOutputs } from '../../logic/strategyCalculations';
 
 type ScenarioType = 'worst' | 'target' | 'best';
@@ -79,20 +78,23 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
   newPropertyLocation,
   growthScenarios
 }) => {
-  // Lift the selectedScenario state to be shared across all scenarios
-  const [selectedScenario, setSelectedScenario] = useState<ScenarioType>('target');
+  // Track selected scenario for each strategy independently
+  const [selectedScenarios, setSelectedScenarios] = useState<Record<string, ScenarioType>>({
+    BBYS: 'target',
+    SBYB: 'target',
+    KB: 'target',
+    SS: 'target'
+  });
+
+  const handleScenarioChange = (strategy: string, scenario: ScenarioType) => {
+    setSelectedScenarios(prev => ({
+      ...prev,
+      [strategy]: scenario
+    }));
+  };
 
   return (
     <Box sx={{ mt: 4 }}>
-      {/* Scenario Toggle - Above the grid */}
-      <Box sx={{ mb: 3 }}>
-        <ScenarioToggle
-          selectedScenario={selectedScenario}
-          onScenarioChange={setSelectedScenario}
-          growthScenarios={growthScenarios}
-        />
-      </Box>
-
       {/* Single Grid Container for Perfect Alignment */}
       <Box
         sx={{
@@ -242,8 +244,8 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
               growthScenarios={growthScenarios}
               readyToGoDate={readyToGoDate}
               timeBetween={timeBetween}
-              selectedScenario={selectedScenario}
-              onScenarioChange={setSelectedScenario}
+              selectedScenario={selectedScenarios[scenario.id]}
+              onScenarioChange={(newScenario) => handleScenarioChange(scenario.id, newScenario)}
             />
           </Box>
         ))}
@@ -274,7 +276,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
               growthScenarios={growthScenarios}
               readyToGoDate={readyToGoDate}
               timeBetween={timeBetween}
-              selectedScenario={selectedScenario}
+              selectedScenario={selectedScenarios[scenario.id]}
             />
           </Box>
         ))}
