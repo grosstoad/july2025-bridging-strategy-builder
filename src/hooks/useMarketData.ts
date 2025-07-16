@@ -125,16 +125,16 @@ function processMarketData(
         priceGrowth = ((latestPrice - yearAgoPrice) / yearAgoPrice) * 100;
       }
 
-      console.log('Processed median price data:', { 
-        propertyType,
-        bedrooms: bedroomFilter,
-        latestMonth: latestMonthData?.startDate,
-        yearAgoMonth: yearAgoMonthData?.startDate,
-        latestPrice, 
-        yearAgoPrice, 
-        priceGrowth,
-        availableBedrooms: Array.from(bedroomOptionsSet)
-      });
+      // console.log('Processed median price data:', { 
+      //   propertyType,
+      //   bedrooms: bedroomFilter,
+      //   latestMonth: latestMonthData?.startDate,
+      //   yearAgoMonth: yearAgoMonthData?.startDate,
+      //   latestPrice, 
+      //   yearAgoPrice, 
+      //   priceGrowth,
+      //   availableBedrooms: Array.from(bedroomOptionsSet)
+      // });
     }
   }
 
@@ -207,7 +207,7 @@ export const useTargetMarketData = (
       return;
     }
 
-    console.log('Processing market data for:', { propertyType, bedrooms });
+    // console.log('Processing market data for:', { propertyType, bedrooms });
     const processed = processMarketData(rawApiResponse, propertyType, bedrooms);
     setData(processed.marketData);
     setAvailableBedroomOptions(processed.availableBedroomOptions);

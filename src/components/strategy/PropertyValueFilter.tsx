@@ -34,7 +34,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
   onGrowthChange,
   onValueChange,
   icon = <HomeIcon sx={{ fontSize: 18 }} />,
-  location = 'SUBURBIA NSW',
+  location = '',
   sx = {}
 }) => {
   const handleScenarioChange = (scenario: keyof GrowthScenarios, newValue: string) => {
@@ -114,7 +114,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.75 }}>
           <Typography variant="caption" sx={{ fontSize: '0.688rem', color: 'rgba(0,0,0,0.6)' }}>
-            Growth for properties in {location}
+            {location ? `Growth for properties in ${location}` : 'Growth scenarios'}
           </Typography>
           <Tooltip title="These growth scenarios help estimate future property values based on market conditions">
             <IconButton size="small" sx={{ padding: 0 }}>
@@ -124,7 +124,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
         </Box>
 
         {/* Growth Inputs Row */}
-        <Stack direction="row" spacing={0.5} sx={{ maxWidth: 280 }}>
+        <Stack direction="row" spacing={0.5} sx={{ width: '100%' }}>
           <TextField
             size="small"
             label="Low"
@@ -138,7 +138,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
               </InputAdornment>,
               inputProps: {
                 step: 0.1,
-                style: { textAlign: 'center', fontSize: '0.75rem' }
+                style: { textAlign: 'center', fontSize: '0.875rem' }
               }
             }}
             sx={{
@@ -148,10 +148,11 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
                 backgroundColor: 'white',
               },
               '& .MuiInputLabel-root': {
-                fontSize: '0.7rem',
+                fontSize: '0.75rem',
               },
               '& .MuiInputBase-input': {
                 padding: '4px 8px',
+                fontSize: '0.875rem',
               }
             }}
           />
@@ -169,7 +170,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
               </InputAdornment>,
               inputProps: {
                 step: 0.1,
-                style: { textAlign: 'center', fontSize: '0.75rem' }
+                style: { textAlign: 'center', fontSize: '0.875rem' }
               }
             }}
             sx={{
@@ -179,10 +180,11 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
                 backgroundColor: 'white',
               },
               '& .MuiInputLabel-root': {
-                fontSize: '0.7rem',
+                fontSize: '0.75rem',
               },
               '& .MuiInputBase-input': {
                 padding: '4px 8px',
+                fontSize: '0.875rem',
               }
             }}
           />
@@ -200,7 +202,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
               </InputAdornment>,
               inputProps: {
                 step: 0.1,
-                style: { textAlign: 'center', fontSize: '0.75rem' }
+                style: { textAlign: 'center', fontSize: '0.875rem' }
               }
             }}
             sx={{
@@ -210,10 +212,11 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
                 backgroundColor: 'white',
               },
               '& .MuiInputLabel-root': {
-                fontSize: '0.7rem',
+                fontSize: '0.75rem',
               },
               '& .MuiInputBase-input': {
                 padding: '4px 8px',
+                fontSize: '0.875rem',
               }
             }}
           />

@@ -143,10 +143,30 @@ export const TargetPropertyPage = () => {
     selection?.type === 'suburb' ? (bedrooms === 'combined' ? undefined : parseInt(bedrooms)) : extractValue(propertyData?.attributes?.bedrooms)
   );
 
-  console.log('Current selection:', selection);
-  console.log('Market data:', marketData);
-  console.log('Property data:', propertyData);
-  console.log('Valuations:', valuations);
+  // Debug logging - only log when data actually changes
+  useEffect(() => {
+    if (selection) {
+      console.log('Selection changed:', selection);
+    }
+  }, [selection]);
+
+  useEffect(() => {
+    if (marketData) {
+      console.log('Market data updated:', marketData);
+    }
+  }, [marketData]);
+
+  useEffect(() => {
+    if (propertyData) {
+      console.log('Property data updated:', propertyData);
+    }
+  }, [propertyData]);
+
+  useEffect(() => {
+    if (valuations) {
+      console.log('Valuations updated:', valuations);
+    }
+  }, [valuations]);
 
   // Update bedroom selection when available options change
   useEffect(() => {

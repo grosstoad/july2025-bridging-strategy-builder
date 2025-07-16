@@ -138,7 +138,7 @@ export const IndicativeCostsSectionContent: React.FC<IndicativeCostsSectionConte
           {/* Cost Input Fields */}
           {COST_FIELDS.map((field) => (
             <Stack key={field.key} direction="row" spacing={2} alignItems="center">
-              <Box sx={{ width: '120px' }}>
+              <Box sx={{ width: '140px' }}>
                 <Stack direction="row" spacing={0.5} alignItems="center">
                   <Typography 
                     variant="body2" 
@@ -158,7 +158,7 @@ export const IndicativeCostsSectionContent: React.FC<IndicativeCostsSectionConte
                 </Stack>
               </Box>
               
-              <Box sx={{ flex: 1 }}>
+              <Box sx={{ width: '120px' }}>
                 <TextField
                   size="small"
                   value={formatCurrencyInput(costs[field.key].toString())}

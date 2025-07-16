@@ -166,39 +166,6 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
   const currentValueChange = projectedCurrentValue - currentPropertyValue;
   const newValueChange = projectedNewValue - newPropertyValue;
 
-  // Calculate possible shortfall/gain
-  const calculateShortfall = () => {
-    switch (strategy) {
-      case 'BBYS':
-      case 'SBYB':
-      case 'SS':
-        return -newValueChange + currentValueChange;
-      case 'KB':
-        return -newValueChange;
-      default:
-        return 0;
-    }
-  };
-
-  const shortfall = calculateShortfall();
-  const isShortfall = shortfall < 0;
-
-  // Get market risk message
-  const getMarketRiskMessage = () => {
-    switch (strategy) {
-      case 'BBYS':
-        return `If the market in ${currentPropertyLocation} falls, your current property could sell for less leaving you with a potential shortfall. Consider adding a price guarantee to lock in your price.`;
-      case 'SBYB':
-        return `If the market rises after you sell, buying could become more expensive. You may need extra funds or risk missing out. If you've found the right home, consider buying now to lock in the price.`;
-      case 'KB':
-        return `If the market in ${newPropertyLocation} falls, your investment property value may decrease.`;
-      case 'SS':
-        return `Coordinating two settlements on the same day leaves little room for error and may force compromises on price or timing.`;
-      default:
-        return '';
-    }
-  };
-
   return (
     <Box>
       <Stack spacing={2.5}>
@@ -530,98 +497,7 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
           )}
         </Stack>
 
-        {/* Possible Shortfall/Gain - Large Chip */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, minHeight: '100px', alignItems: 'center' }}>
-          {strategy !== 'KB' && (
-            <Chip
-              icon={
-                <Typography 
-                  component="span" 
-                  sx={{ 
-                    fontSize: '1.125rem',
-                    mr: 0.5
-                  }}
-                >
-                  {isShortfall ? '⚠️' : '✅'}
-                </Typography>
-              }
-              label={
-                <Stack direction="row" spacing={1} alignItems="baseline">
-                  <Typography 
-                    component="span" 
-                    sx={{ 
-                      fontSize: '0.875rem',
-                      fontWeight: 500
-                    }}
-                  >
-                    {isShortfall ? 'Potential shortfall of' : 'Possible gain of'}
-                  </Typography>
-                  <Typography 
-                    component="span" 
-                    sx={{ 
-                      fontSize: '1.125rem',
-                      fontWeight: 700
-                    }}
-                  >
-                    {formatCurrency(Math.abs(shortfall))}
-                  </Typography>
-                </Stack>
-              }
-              sx={{
-                height: 'auto',
-                py: 1.5,
-                px: 2,
-                minWidth: '200px',
-                backgroundColor: isShortfall ? '#fff3e0' : '#e8f5e9',
-                color: isShortfall ? '#e65100' : '#1b5e20',
-                '& .MuiChip-icon': {
-                  ml: 0,
-                  mr: 0.5,
-                  color: 'inherit'
-                },
-                '& .MuiChip-label': {
-                  px: 0
-                }
-              }}
-            />
-          )}
-        </Box>
 
-        {/* Market Risks */}
-        <Box>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              fontSize: '0.875rem', 
-              fontWeight: 600, 
-              mb: 1 
-            }}
-          >
-            Market risks for this strategy:
-          </Typography>
-          <Stack direction="row" spacing={1} alignItems="flex-start">
-            <Typography 
-              component="span" 
-              sx={{ 
-                fontSize: '1rem',
-                color: '#ff9800',
-                flexShrink: 0
-              }}
-            >
-              ⚠️
-            </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ 
-                fontSize: '0.813rem', 
-                lineHeight: 1.5 
-              }}
-            >
-              {getMarketRiskMessage()}
-            </Typography>
-          </Stack>
-        </Box>
 
         {/* Guarantee Sale Price Link (BBYS only) */}
         {strategy === 'BBYS' && (

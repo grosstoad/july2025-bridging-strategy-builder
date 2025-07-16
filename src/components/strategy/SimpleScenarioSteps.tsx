@@ -74,7 +74,7 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
         
         const summary: FinancialSummary[] = [
           { label: 'End debt', value: formatCurrency(endDebt) },
-          { label: 'Estimated repayments', value: `--${formatCurrency(monthlyRepayment)}/month` }
+          { label: 'Estimated repayments', value: `${formatCurrency(monthlyRepayment)}/month` }
         ];
         
         return { steps, summary };
@@ -96,7 +96,7 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
         
         const summary: FinancialSummary[] = endDebt > 0 ? [
           { label: 'End debt', value: formatCurrency(endDebt) },
-          { label: 'Estimated repayments', value: `--${formatCurrency(monthlyRepayment)}/month` }
+          { label: 'Estimated repayments', value: `${formatCurrency(monthlyRepayment)}/month` }
         ] : [
           { label: 'End debt', value: '$0' },
           { label: 'Estimated repayments', value: 'No loan required' }
@@ -118,7 +118,7 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
         
         const summary: FinancialSummary[] = [
           { label: 'End debt', value: formatCurrency(endDebt) },
-          { label: 'Estimated repayments', value: `--${formatCurrency(monthlyRepayment)}/month` }
+          { label: 'Estimated repayments', value: `${formatCurrency(monthlyRepayment)}/month` }
         ];
         
         return { steps, summary, additionalInfo };
@@ -135,7 +135,7 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
         
         const summary: FinancialSummary[] = endDebt > 0 ? [
           { label: 'End debt', value: formatCurrency(endDebt) },
-          { label: 'Estimated repayments', value: `--${formatCurrency(monthlyRepayment)}/month` }
+          { label: 'Estimated repayments', value: `${formatCurrency(monthlyRepayment)}/month` }
         ] : [
           { label: 'End debt', value: '$0' },
           { label: 'Estimated repayments', value: 'No loan required' }
@@ -152,7 +152,7 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
   const { steps, summary, additionalInfo } = getStepsAndSummary();
 
   return (
-    <Stack spacing={2.5}>
+    <Stack spacing={2.5} sx={{ height: '100%' }}>
       {/* Steps */}
       <Stack spacing={2}>
         {steps.map((step, index) => (
@@ -211,8 +211,11 @@ export const SimpleScenarioSteps: React.FC<SimpleScenarioStepsProps> = ({
         )}
       </Stack>
 
+      {/* Spacer to push financial summary to bottom */}
+      <Box sx={{ flexGrow: 1 }} />
+
       {/* Financial Summary */}
-      <Stack direction="row" spacing={4} sx={{ ml: 5 }}>
+      <Stack direction="row" spacing={4}>
         {summary.map((item, index) => (
           <Box key={index}>
             <Typography 

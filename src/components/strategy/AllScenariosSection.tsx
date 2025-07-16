@@ -18,6 +18,8 @@ import {
 } from '@mui/icons-material';
 import { ScenarioSection } from './ScenarioSection';
 import { PropertyMarketOutlookContent } from './PropertyMarketOutlookContent';
+import { PropertyMarketChip } from './PropertyMarketChip';
+import { MarketRisksSection } from './MarketRisksSection';
 import { IndicativeCostsSectionContent } from './IndicativeCostsSectionContent';
 import { ThingsToConsiderContent } from './ThingsToConsiderContent';
 import { StrategyCalculationOutputs } from '../../logic/strategyCalculations';
@@ -70,8 +72,8 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
   readyToGoDate,
   timeBetween,
   calculations,
-  currentPropertyLocation = 'Current location',
-  newPropertyLocation = 'New location',
+  currentPropertyLocation,
+  newPropertyLocation,
   growthScenarios
 }) => {
   return (
@@ -85,7 +87,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
             sm: 'repeat(2, 1fr)',
             md: 'repeat(4, 1fr)'
           },
-          gridTemplateRows: 'auto 1fr auto auto auto auto auto auto auto auto auto',
+          gridTemplateRows: 'auto 1fr auto auto auto auto auto auto auto auto auto auto auto',
           gap: 2,
           position: 'relative'
         }}
@@ -122,7 +124,9 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
               gridRow: 1,
               p: 2,
               pb: 0,
-              zIndex: 1
+              zIndex: 1,
+              height: '100%',
+              minHeight: 300
             }}
           >
             <ScenarioSection
@@ -227,7 +231,61 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
           </Box>
         ))}
 
-        {/* Row 6: Indicative Costs Dividers */}
+        {/* Row 6: Chips Section */}
+        {scenarios.map((scenario, index) => (
+          <Box
+            key={`chip-${scenario.id}`}
+            sx={{
+              gridColumn: {
+                xs: 1,
+                sm: index < 2 ? index + 1 : index - 1,
+                md: index + 1
+              },
+              gridRow: 6,
+              px: 2,
+              zIndex: 1,
+              minHeight: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <PropertyMarketChip
+              strategy={scenario.id}
+              currentPropertyValue={currentPropertyValue}
+              newPropertyValue={newPropertyValue}
+              growthScenarios={growthScenarios}
+              readyToGoDate={readyToGoDate}
+              timeBetween={timeBetween}
+              selectedScenario="target"
+            />
+          </Box>
+        ))}
+
+        {/* Row 7: Market Risks Section */}
+        {scenarios.map((scenario, index) => (
+          <Box
+            key={`risks-${scenario.id}`}
+            sx={{
+              gridColumn: {
+                xs: 1,
+                sm: index < 2 ? index + 1 : index - 1,
+                md: index + 1
+              },
+              gridRow: 7,
+              px: 2,
+              zIndex: 1
+            }}
+          >
+            <MarketRisksSection
+              strategy={scenario.id}
+              currentPropertyLocation={currentPropertyLocation}
+              newPropertyLocation={newPropertyLocation}
+            />
+          </Box>
+        ))}
+
+        {/* Row 8: Indicative Costs Dividers */}
         {scenarios.map((scenario, index) => (
           <Divider
             key={`divider2-${scenario.id}`}
@@ -237,7 +295,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
                 sm: index < 2 ? index + 1 : index - 1,
                 md: index + 1
               },
-              gridRow: 6,
+              gridRow: 8,
               borderColor: '#e0e0e0',
               mx: 2,
               mt: 2,
@@ -246,7 +304,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
           />
         ))}
 
-        {/* Row 7 & 8: Indicative Costs Accordion (Title and Content combined) */}
+        {/* Row 9 & 10: Indicative Costs Accordion (Title and Content combined) */}
         {scenarios.map((scenario, index) => (
           <Box
             key={`ic-accordion-${scenario.id}`}
@@ -256,7 +314,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
                 sm: index < 2 ? index + 1 : index - 1,
                 md: index + 1
               },
-              gridRow: '7 / 9',
+              gridRow: '9 / 11',
               px: 2,
               zIndex: 1
             }}
@@ -302,7 +360,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
           </Box>
         ))}
 
-        {/* Row 9: Things to Consider Dividers */}
+        {/* Row 11: Things to Consider Dividers */}
         {scenarios.map((scenario, index) => (
           <Divider
             key={`divider3-${scenario.id}`}
@@ -312,7 +370,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
                 sm: index < 2 ? index + 1 : index - 1,
                 md: index + 1
               },
-              gridRow: 9,
+              gridRow: 11,
               borderColor: '#e0e0e0',
               mx: 2,
               mt: 2,
@@ -321,7 +379,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
           />
         ))}
 
-        {/* Row 10: Things to Consider Titles */}
+        {/* Row 12: Things to Consider Titles */}
         {scenarios.map((scenario, index) => (
           <Typography
             key={`ttc-title-${scenario.id}`}
@@ -332,7 +390,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
                 sm: index < 2 ? index + 1 : index - 1,
                 md: index + 1
               },
-              gridRow: 10,
+              gridRow: 12,
               fontWeight: 600,
               fontSize: '1rem',
               color: 'text.primary',
@@ -345,7 +403,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
           </Typography>
         ))}
 
-        {/* Row 11: Things to Consider Content */}
+        {/* Row 13: Things to Consider Content */}
         {scenarios.map((scenario, index) => (
           <Box
             key={`ttc-content-${scenario.id}`}
@@ -355,7 +413,7 @@ export const AllScenariosSection: React.FC<AllScenariosSectionProps> = ({
                 sm: index < 2 ? index + 1 : index - 1,
                 md: index + 1
               },
-              gridRow: 11,
+              gridRow: 13,
               px: 2,
               pb: 2,
               zIndex: 1

@@ -71,8 +71,9 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
     }
   };
 
-  // Time between options (0-12 months)
-  const timeBetweenOptions = Array.from({ length: 13 }, (_, i) => i);
+  // Time between options - dynamic based on ready to go date
+  const maxTimeBetween = Math.min(12, 24 - readyToGoValue);
+  const timeBetweenOptions = Array.from({ length: maxTimeBetween + 1 }, (_, i) => i);
 
   return (
     <Box sx={{ flex: 1.5, minWidth: { xs: '100%', sm: 350, md: 400 }, ...sx }}>
@@ -102,7 +103,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
         {/* Dropdowns Row */}
         <Stack direction="row" spacing={1}>
           {/* Ready to go Select */}
-          <FormControl size="small" sx={{ width: 100 }}>
+          <FormControl size="small" sx={{ width: 130 }}>
           <InputLabel sx={{ fontSize: '0.75rem' }}>Ready to go</InputLabel>
           <Select
             value={monthOptions.find(opt => 
@@ -128,7 +129,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
 
         {/* Time between Select */}
         <Box>
-          <FormControl size="small" sx={{ width: 110 }}>
+          <FormControl size="small" sx={{ width: 140 }}>
             <InputLabel sx={{ fontSize: '0.75rem' }}>Time between</InputLabel>
             <Select
               value={timeBetween}
@@ -168,7 +169,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
 
       {/* Dual Handle Slider */}
       <Box sx={{ px: 0, pt: 1.5, position: 'relative', overflow: 'hidden' }}>
-        <Box sx={{ px: 1.5 }}>
+        <Box sx={{ px: 0 }}>
           <Slider
             value={[readyToGoValue, settlementValue]}
             onChange={handleSliderChange}
@@ -178,11 +179,12 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
             step={1}
             disableSwap
             sx={{
+              mx: 1,
               height: 4,
               '& .MuiSlider-thumb': {
                 backgroundColor: 'primary.main',
-                width: 14,
-                height: 14,
+                width: 16,
+                height: 16,
                 '&:hover, &.Mui-focusVisible': {
                   boxShadow: 'inherit',
                 },
@@ -211,7 +213,7 @@ export const TimingControls: React.FC<TimingControlsProps> = ({
           />
           
           {/* Timeline labels */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5, px: 1 }}>
             <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
               {formatMonthYear(minDate)}
             </Typography>

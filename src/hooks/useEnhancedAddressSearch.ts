@@ -146,7 +146,7 @@ export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
     // Set up new debounce timer
     debounceTimerRef.current = setTimeout(() => {
       performSearch(query);
-    }, 100); // 100ms debounce
+    }, 300); // 300ms debounce - balanced for responsive search
   }, [performSearch]);
 
   const clearResults = useCallback(() => {

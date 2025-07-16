@@ -80,7 +80,7 @@ export const ScenarioSection: React.FC<ScenarioSectionProps> = ({
   );
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Typography 
         variant="body1" 
         sx={{ 

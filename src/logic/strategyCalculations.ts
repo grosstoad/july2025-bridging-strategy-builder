@@ -76,8 +76,8 @@ export const calculateBBYS = (inputs: StrategyCalculationInputs): StrategyCalcul
   const sellingCosts = inputs.currentPropertyValue * (sellingCostsPercent / 100);
   const netSaleProceeds = inputs.currentPropertyValue - sellingCosts - inputs.existingDebt;
   
-  // End debt = Bridge debt + costs - net sale proceeds
-  const endDebt = Math.max(0, results.bridgeDebt + results.fcap - netSaleProceeds);
+  // End debt = Bridge debt + end debt + costs - net sale proceeds
+  const endDebt = Math.max(0, results.bridgeDebt + results.endDebt + results.fcap - netSaleProceeds);
   
   // Calculate monthly repayment
   const monthlyRepayment = endDebt > 0 ? PMT(endLoanRate / 100 / 12, loanTerm * 12, endDebt) : 0;
@@ -153,16 +153,46 @@ export const calculateScenario = (
   strategy: 'BBYS' | 'SBYB' | 'KB' | 'SS',
   inputs: StrategyCalculationInputs
 ): StrategyCalculationOutputs => {
+  console.log(`\n=== Calculating ${strategy} Strategy ===`);
+  console.log('Inputs:', {
+    currentPropertyValue: inputs.currentPropertyValue.toLocaleString(),
+    newPropertyValue: inputs.newPropertyValue.toLocaleString(),
+    existingDebt: inputs.existingDebt.toLocaleString(),
+    savings: inputs.savings.toLocaleString(),
+    timeBetween: `${inputs.timeBetween} months`,
+    sellingCostsPercent: inputs.sellingCostsPercent ?? 2.5,
+    purchaseCostsPercent: inputs.purchaseCostsPercent ?? 5.5,
+    bridgingInterestRate: inputs.bridgingInterestRate ?? 7.5,
+    endLoanRate: inputs.endLoanRate ?? 5.5,
+    loanTerm: inputs.loanTerm ?? 30
+  });
+
+  let result: StrategyCalculationOutputs;
+  
   switch (strategy) {
     case 'BBYS':
-      return calculateBBYS(inputs);
+      result = calculateBBYS(inputs);
+      break;
     case 'SBYB':
-      return calculateSBYB(inputs);
+      result = calculateSBYB(inputs);
+      break;
     case 'KB':
-      return calculateKB(inputs);
+      result = calculateKB(inputs);
+      break;
     case 'SS':
-      return calculateSS(inputs);
+      result = calculateSS(inputs);
+      break;
     default:
       throw new Error(`Unknown strategy: ${strategy}`);
   }
+
+  console.log('Outputs:', {
+    endDebt: result.endDebt.toLocaleString(),
+    monthlyRepayment: result.monthlyRepayment.toFixed(2),
+    bridgingLoanAmount: result.bridgingLoanAmount.toLocaleString(),
+    bridgingLoanCosts: result.bridgingLoanCosts?.toLocaleString() ?? 'N/A',
+    noLoanRequired: result.noLoanRequired
+  });
+
+  return result;
 };

@@ -77,10 +77,10 @@ export const PropertyStrategyCard: React.FC<PropertyStrategyCardProps> = ({
           <Stack spacing={1.5}>
             <Box>
               <Typography 
-                variant="body1" 
+                variant="h5" 
                 sx={{ 
                   fontWeight: 600,
-                  fontSize: '1rem',
+                  fontSize: '1.125rem',
                   lineHeight: 1.3,
                   mb: 0.75
                 }}
