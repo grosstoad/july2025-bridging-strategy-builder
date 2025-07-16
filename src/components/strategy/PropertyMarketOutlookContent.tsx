@@ -28,7 +28,7 @@ type ScenarioType = 'worst' | 'target' | 'best';
 
 const scenarioConfig = {
   worst: { icon: '🌧️', label: 'Worst' },
-  target: { icon: '🎯', label: 'Target' },
+  target: { icon: '📈', label: 'Trend' },
   best: { icon: '☀️', label: 'Best' }
 };
 
@@ -78,7 +78,7 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
             return {
               current: growthScenarios.current.target,
               new: growthScenarios.new.target,
-              description: `Based on target growth in your selling market (${formatPercentage(growthScenarios.current.target)} p.a) and target growth in your buying market (${formatPercentage(growthScenarios.new.target)} p.a).`
+              description: `Based on trend growth in your selling market (${formatPercentage(growthScenarios.current.target)} p.a) and trend growth in your buying market (${formatPercentage(growthScenarios.new.target)} p.a).`
             };
           case 'best':
             return {
@@ -98,7 +98,7 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
         return {
           current: 0,
           new: newGrowth,
-          description: `Based on ${selectedScenario} growth in your buying market (${formatPercentage(newGrowth)} p.a).`
+          description: `Based on ${selectedScenario === 'target' ? 'trend' : selectedScenario} growth in your buying market (${formatPercentage(newGrowth)} p.a).`
         };
     }
   };

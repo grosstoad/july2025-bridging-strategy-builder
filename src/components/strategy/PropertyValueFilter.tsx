@@ -159,7 +159,7 @@ export const PropertyValueFilter: React.FC<PropertyValueFilterProps> = ({
 
           <TextField
             size="small"
-            label="Target"
+            label="Trend"
             variant="outlined"
             value={growthScenarios.target}
             onChange={(e) => handleScenarioChange('target', e.target.value)}
