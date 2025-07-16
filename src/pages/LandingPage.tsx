@@ -13,6 +13,7 @@ import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { AddressAutocomplete } from '../components/inputs/AddressAutocomplete';
 import { AddressSuggestion } from '../types/proptrack';
 import { useProperty } from '../contexts/PropertyContext';
+import { ProcessSteps } from '../components/landing/ProcessSteps';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -218,6 +219,9 @@ export const LandingPage: React.FC = () => {
           )}
         </Stack>
       </Container>
+
+      {/* Process Steps Section */}
+      <ProcessSteps />
     </Box>
   );
 };
