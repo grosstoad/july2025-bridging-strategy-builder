@@ -68,7 +68,8 @@ export const PropertyStrategyPlayback: React.FC = () => {
 
   // Redirect if no property data
   useEffect(() => {
-    if (!currentProperty.propertyValue || !targetProperty.propertyValue) {
+    if (currentProperty.propertyValue === null || currentProperty.propertyValue === undefined ||
+        targetProperty.propertyValue === null || targetProperty.propertyValue === undefined) {
       navigate('/current-property');
     }
   }, [currentProperty, targetProperty, navigate]);
@@ -125,14 +126,32 @@ export const PropertyStrategyPlayback: React.FC = () => {
     setTiming(newTiming);
   };
 
+  // Get financial inputs from session storage
+  const getFinancialInputs = () => {
+    try {
+      const savedFormState = sessionStorage.getItem('targetPropertyFormState');
+      if (savedFormState) {
+        const parsed = JSON.parse(savedFormState);
+        return parsed.financialInputs || {};
+      }
+    } catch (error) {
+      console.error('Error loading financial inputs:', error);
+    }
+    return {};
+  };
+
   // Perform calculations when values change
   useEffect(() => {
-    if (currentProperty.propertyValue && targetProperty.propertyValue) {
+    if (currentProperty.propertyValue !== null && currentProperty.propertyValue !== undefined &&
+        targetProperty.propertyValue !== null && targetProperty.propertyValue !== undefined) {
+      const financialInputs = getFinancialInputs();
+      
       const inputs = {
         currentPropertyValue: currentProperty.propertyValue,
         newPropertyValue: targetProperty.propertyValue,
         existingDebt: currentProperty.loanBalance || 0,
-        savings: 0, // TODO: Get from user preferences
+        savings: financialInputs.savingsForPurchase || 0,
+        additionalBorrowings: financialInputs.additionalCashToBorrow || 0,
         timeBetween: timing.timeBetween
       };
 
@@ -322,7 +341,7 @@ export const PropertyStrategyPlayback: React.FC = () => {
           currentPropertyValue={currentProperty.propertyValue || 0}
           newPropertyValue={targetProperty.propertyValue || 0}
           existingDebt={currentProperty.loanBalance || 0}
-          savings={0} // TODO: Get from user preferences
+          savings={getFinancialInputs().savingsForPurchase || 0}
           readyToGoDate={timing.readyToGo}
           timeBetween={timing.timeBetween}
           calculations={calculations}

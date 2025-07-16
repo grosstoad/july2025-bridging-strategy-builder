@@ -45,23 +45,31 @@ export const EnhancedAddressAutocomplete = ({
       return;
     }
 
-    if (option.type === 'property' && option.data && 'fullAddress' in option.data) {
-      const propertyData = option.data;
+    console.log('Selected option:', { type: option.type, data: option.data, displayText: option.displayText });
+
+    if (option.type === 'property') {
+      const propertyData = option.data as any;
       const selection: AddressSelection = {
         type: 'address',
-        propertyId: propertyData.propertyId ? String(propertyData.propertyId) : '',
-        address: propertyData.fullAddress,
+        propertyId: propertyData?.propertyId ? String(propertyData.propertyId) : '',
+        address: propertyData?.fullAddress || option.displayText,
         displayAddress: option.displayText
       };
       onSelect(selection);
       console.log('Selected property:', selection);
-    } else if (option.type === 'suburb' && option.data && 'name' in option.data) {
-      const suburbData = option.data;
+    } else if (option.type === 'suburb') {
+      const suburbData = option.data as any;
+      // Extract suburb name from displayText if not in data
+      const displayParts = option.displayText.split(',');
+      const suburbName = suburbData?.name || displayParts[0]?.trim() || '';
+      const statePostcode = displayParts[1]?.trim() || '';
+      const stateParts = statePostcode.split(' ');
+      
       const selection: SuburbSelection = {
         type: 'suburb',
-        suburb: suburbData.name,
-        state: suburbData.state,
-        postcode: suburbData.postcode,
+        suburb: suburbName,
+        state: suburbData?.state || stateParts[0] || '',
+        postcode: suburbData?.postcode || stateParts[1] || '',
         displayName: option.displayText
       };
       onSelect(selection);

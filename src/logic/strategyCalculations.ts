@@ -7,6 +7,7 @@ export interface StrategyCalculationInputs {
   existingDebt: number;
   savings: number;
   timeBetween: number;
+  additionalBorrowings?: number;
   sellingCostsPercent?: number;
   purchaseCostsPercent?: number;
   bridgingInterestRate?: number;
@@ -46,7 +47,7 @@ export const calculateBBYS = (inputs: StrategyCalculationInputs): StrategyCalcul
     newPropertyValue: inputs.newPropertyValue,
     purchaseCostsPercent,
     purchaseCostsCapitalised: true,
-    additionalBorrowings: 0,
+    additionalBorrowings: inputs.additionalBorrowings || 0,
     savings: inputs.savings,
     contractOfSaleProvided: false,
     bridgingTermMonths: inputs.timeBetween,
@@ -106,7 +107,7 @@ export const calculateSBYB = (inputs: StrategyCalculationInputs): StrategyCalcul
   const purchaseCosts = inputs.newPropertyValue * (purchaseCostsPercent / 100);
 
   // End debt calculation
-  const endDebt = Math.max(0, inputs.newPropertyValue + purchaseCosts - netSaleProceeds - inputs.savings);
+  const endDebt = Math.max(0, inputs.newPropertyValue + purchaseCosts - netSaleProceeds - inputs.savings + (inputs.additionalBorrowings || 0));
 
   // Calculate monthly repayment
   const monthlyRepayment = endDebt > 0 ? PMT(endLoanRate / 100 / 12, loanTerm * 12, endDebt) : 0;
@@ -128,8 +129,8 @@ export const calculateKB = (inputs: StrategyCalculationInputs): StrategyCalculat
   // Calculate purchase costs
   const purchaseCosts = inputs.newPropertyValue * (purchaseCostsPercent / 100);
 
-  // End debt = existing debt + new property + costs - savings
-  const endDebt = inputs.existingDebt + inputs.newPropertyValue + purchaseCosts - inputs.savings;
+  // End debt = existing debt + new property + costs - savings + additional borrowings
+  const endDebt = inputs.existingDebt + inputs.newPropertyValue + purchaseCosts - inputs.savings + (inputs.additionalBorrowings || 0);
 
   // Calculate monthly repayment
   const monthlyRepayment = PMT(endLoanRate / 100 / 12, loanTerm * 12, endDebt);
