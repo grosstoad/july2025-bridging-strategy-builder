@@ -53,15 +53,48 @@ interface FinancialInputs {
 
 export const TargetPropertyPage = () => {
   const navigate = useNavigate();
-  const { setTargetProperty } = useProperty();
-  const [selection, setSelection] = useState<SearchSelection | null>(null);
-  const [propertyType, setPropertyType] = useState<'house' | 'unit'>('house');
-  const [bedrooms, setBedrooms] = useState<string>('3');
-  const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
-    expectedPurchasePrice: 0,
-    savingsForPurchase: 0,
-    additionalCashToBorrow: 0
-  });
+  const { setTargetProperty, targetProperty } = useProperty();
+  
+  // Load saved form state from session storage
+  const loadSavedState = () => {
+    try {
+      const savedFormState = sessionStorage.getItem('targetPropertyFormState');
+      if (savedFormState) {
+        return JSON.parse(savedFormState);
+      }
+    } catch (error) {
+      console.error('Error loading saved form state:', error);
+    }
+    return null;
+  };
+
+  const savedState = loadSavedState();
+  
+  const [selection, setSelection] = useState<SearchSelection | null>(savedState?.selection || null);
+  const [propertyType, setPropertyType] = useState<'house' | 'unit'>(savedState?.propertyType || 'house');
+  const [bedrooms, setBedrooms] = useState<string>(savedState?.bedrooms || '3');
+  const [financialInputs, setFinancialInputs] = useState<FinancialInputs>(
+    savedState?.financialInputs || {
+      expectedPurchasePrice: targetProperty.propertyValue || 0,
+      savingsForPurchase: 0,
+      additionalCashToBorrow: 0
+    }
+  );
+
+  // Save form state to session storage whenever it changes
+  useEffect(() => {
+    const formState = {
+      selection,
+      propertyType,
+      bedrooms,
+      financialInputs
+    };
+    try {
+      sessionStorage.setItem('targetPropertyFormState', JSON.stringify(formState));
+    } catch (error) {
+      console.error('Error saving form state:', error);
+    }
+  }, [selection, propertyType, bedrooms, financialInputs]);
 
   // For property selection - fetch full property data
   const {

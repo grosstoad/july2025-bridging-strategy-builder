@@ -129,7 +129,7 @@ export const PropertyStrategyPlayback: React.FC = () => {
         <Stack direction="row" alignItems="center" spacing={1} mb={1}>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/target-property')}
+            onClick={() => navigate(-1)}
             sx={{ color: 'text.secondary', pl: 0 }}
             size="small"
           >
