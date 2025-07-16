@@ -22,6 +22,8 @@ interface PropertyMarketOutlookContentProps {
   };
   readyToGoDate: Date;
   timeBetween: number;
+  selectedScenario?: ScenarioType;
+  onScenarioChange?: (scenario: ScenarioType) => void;
 }
 
 type ScenarioType = 'worst' | 'target' | 'best';
@@ -54,9 +56,14 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
   newPropertyLocation,
   growthScenarios,
   readyToGoDate,
-  timeBetween
+  timeBetween,
+  selectedScenario: selectedScenarioProp,
+  onScenarioChange
 }) => {
-  const [selectedScenario, setSelectedScenario] = useState<ScenarioType>('target');
+  // Use local state only if props are not provided (for backward compatibility)
+  const [localSelectedScenario, setLocalSelectedScenario] = useState<ScenarioType>('target');
+  const selectedScenario = selectedScenarioProp ?? localSelectedScenario;
+  const setSelectedScenario = onScenarioChange ?? setLocalSelectedScenario;
 
   // Calculate months until ready to go
   const monthsUntilReady = Math.max(0, differenceInMonths(readyToGoDate, new Date()));
@@ -169,60 +176,6 @@ export const PropertyMarketOutlookContent: React.FC<PropertyMarketOutlookContent
   return (
     <Box>
       <Stack spacing={2.5}>
-        {/* Scenario Selector - Centered */}
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <ToggleButtonGroup
-            value={selectedScenario}
-            exclusive
-            onChange={(_, value) => value && setSelectedScenario(value)}
-            size="small"
-            sx={{
-              '& .MuiToggleButton-root': {
-                textTransform: 'none',
-                px: 2,
-                py: 0.75,
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                minWidth: 80,
-                border: '1px solid #e0e0e0',
-                color: 'text.primary',
-                '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
-                },
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  borderColor: 'primary.main',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark'
-                  }
-                }
-              }
-            }}
-          >
-            {Object.entries(scenarioConfig).map(([key, config]) => (
-              <ToggleButton key={key} value={key}>
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <span style={{ fontSize: '1.125rem' }}>{config.icon}</span>
-                  <span>{config.label}</span>
-                </Stack>
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Box>
-
-        {/* Growth Description */}
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
-          sx={{ 
-            fontSize: '0.75rem',
-            lineHeight: 1.5,
-            textAlign: 'center'
-          }}
-        >
-          {growthRates.description}
-        </Typography>
 
         {/* Timeline chips will be contextual - moved to property value sections */}
 
