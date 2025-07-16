@@ -35,7 +35,7 @@ export const ProcessSteps: React.FC = () => {
     <Box 
       sx={{ 
         backgroundColor: 'rgba(245, 245, 245, 0.5)',
-        py: 12,
+        py: 8,
         px: { xs: 2, md: 10 }
       }}
     >

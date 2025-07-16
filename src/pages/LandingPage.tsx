@@ -65,7 +65,8 @@ export const LandingPage: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          py: { xs: 8, md: 16 }
+          pt: { xs: 8, md: 16 },
+          pb: { xs: 4, md: 8 }
         }}
       >
         <Stack spacing={8} alignItems="center" textAlign="center">
