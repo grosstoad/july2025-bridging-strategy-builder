@@ -95,12 +95,18 @@ export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
 
       // Add suburb results
       if (suburbResults.status === 'fulfilled' && suburbResults.value) {
-        const suburbMappedResults = suburbResults.value.map((suburb: SuburbSuggestion) => ({
-          type: 'suburb' as const,
-          data: suburb,
-          displayText: `${suburb.name}, ${suburb.state} ${suburb.postcode}`,
-          secondaryText: 'Suburb'
-        }));
+        console.log('Raw suburb results:', suburbResults.value);
+        const suburbMappedResults = suburbResults.value.map((suburb: SuburbSuggestion) => {
+          console.log('Mapping suburb:', suburb);
+          const result = {
+            type: 'suburb' as const,
+            data: suburb,
+            displayText: `${suburb.name}, ${suburb.state} ${suburb.postcode}`,
+            secondaryText: 'Suburb'
+          };
+          console.log('Mapped result:', result);
+          return result;
+        });
         combinedResults.push(...suburbMappedResults);
       }
 
@@ -222,17 +228,24 @@ async function searchSuburbs(query: string, signal: AbortSignal): Promise<Suburb
     }
 
     const data = await response.json();
+    console.log('Australia Post API response:', data);
     
     // Transform Australia Post response to our format
     if (data.localities && Array.isArray(data.localities)) {
       // New format from shipping API
-      return data.localities.map((locality: any) => ({
-        name: locality.name,
-        state: locality.state || 'VIC', // Default if not provided
-        postcode: locality.postcode || '',
-        latitude: locality.latitude,
-        longitude: locality.longitude
-      }));
+      console.log('Processing localities array:', data.localities);
+      return data.localities.map((locality: any) => {
+        console.log('Processing locality:', locality);
+        const mapped = {
+          name: locality.name || locality.location || '',
+          state: locality.state || 'VIC', // Default if not provided
+          postcode: locality.postcode || '',
+          latitude: locality.latitude,
+          longitude: locality.longitude
+        };
+        console.log('Mapped locality:', mapped);
+        return mapped;
+      });
     } else if (data.localities?.locality) {
       // Legacy format support
       const localities = Array.isArray(data.localities.locality) 
