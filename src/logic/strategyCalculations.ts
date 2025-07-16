@@ -52,7 +52,7 @@ export const calculateBBYS = (inputs: StrategyCalculationInputs): StrategyCalcul
     contractOfSaleProvided: false,
     bridgingTermMonths: inputs.timeBetween,
     bridgingInterestRate,
-    bridgingRepaymentType: 'Interest Only',
+    bridgingRepaymentType: 'ICAP', // Interest capitalised
     bridgingFeesCapitalised: true,
     bridgingFeesNoEndDebtPercent: 0.8,
     bridgingFeesEndDebtAmount: 5000,
