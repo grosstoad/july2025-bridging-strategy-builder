@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { PropTrackService } from '../services/proptrack';
 import { AddressSuggestion } from '../types/proptrack';
 import { filterMockSuggestions, filterMockSuburbs, shouldUseMockData } from '../services/mockPropTrackData';
@@ -39,8 +39,10 @@ export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const searchAddresses = useCallback(async (query: string) => {
+  // Internal search implementation
+  const performSearch = useCallback(async (query: string) => {
     // Cancel any pending request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -123,10 +125,54 @@ export const useEnhancedAddressSearch = (): UseEnhancedAddressSearchReturn => {
     }
   }, []);
 
+  // Debounced search function exposed to components
+  const searchAddresses = useCallback(async (query: string) => {
+    // Clear any existing debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Handle empty or short queries immediately
+    const trimmedQuery = query.trim();
+    if (trimmedQuery.length < 3) {
+      setResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Show loading state immediately for better UX
+    setIsLoading(true);
+
+    // Set up new debounce timer
+    debounceTimerRef.current = setTimeout(() => {
+      performSearch(query);
+    }, 100); // 100ms debounce
+  }, [performSearch]);
+
   const clearResults = useCallback(() => {
+    // Clear any pending debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    // Cancel any pending API request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     setResults([]);
     setError(null);
     setIsLoading(false);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
   return {
